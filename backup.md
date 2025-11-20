@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
+    
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -144,7 +144,7 @@
             font-family: 'Dancing Script'; font-size: 2.2rem; color: var(--neon-blue);
             margin-bottom: 20px; text-shadow: 0 0 10px var(--neon-blue);
         }
-
+        
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -292,7 +292,7 @@
         }
 
         .play-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
-
+        
         /* FIX: Added flex-shrink to prevent compression */
         .play-btn {
             width: 42px; height: 42px; border-radius: 50%;
@@ -373,7 +373,7 @@
             width: 100%; display: flex; align-items: center; gap: 10px;
             font-size: 0.75rem; color: #aaa;
         }
-
+        
         input[type=range] {
             -webkit-appearance: none; width: 100%; background: transparent; height: 20px;
             cursor: pointer;
@@ -393,41 +393,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
-
-    <!-- ADDED: overrides, typewriter, floating notes and kiss button styles (keeps original code intact) -->
-    <style>
-        /* Override white frames with transparent + glow */
-        .chat-frame { background: transparent; padding: 0; }
-        .chat-frame img { border: none; border-radius: 10px; box-shadow: 0 0 18px rgba(51,204,255,0.45); display:block; }
-
-        .memory-card { background: transparent; padding: 0; border-radius: 10px; }
-        .memory-card img { width:100%; height:150px; object-fit:cover; border-radius:10px; filter:none; box-shadow: 0 0 14px rgba(255,0,204,0.35); transition: transform .25s ease, box-shadow .25s ease; }
-
-        .memory-card:hover img { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,0,204,0.75); }
-
-        /* Typewriter */
-        .typewriter-box { margin-top: 28px; text-align:center; }
-        #typewriter-text { font-size: 1.6rem; color: var(--neon-pink); text-shadow: 0 0 12px rgba(255,0,204,0.25); white-space: pre-wrap; font-family: 'Dancing Script'; }
-
-        /* Floating notes */
-        .floating-notes { position: relative; height: 160px; overflow: hidden; margin-top: 20px; }
-        .note {
-            position: absolute; bottom: -10px; padding: 8px 14px; background: linear-gradient(135deg, rgba(255,0,204,0.12), rgba(51,204,255,0.08));
-            border: 1px solid rgba(255,0,204,0.16); border-radius: 14px; color: #fff; font-size: 0.95rem;
-            backdrop-filter: blur(4px); text-shadow: 0 0 6px rgba(255,0,204,0.12);
-            animation: floatUp 5s linear forwards; transform: translateY(0); will-change: transform, opacity; max-width: 70%;
-        }
-        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1 } 100% { transform: translateY(-170px); opacity: 0 } }
-
-        /* Kiss button */
-        .kiss-section { margin-top: 22px; text-align: center; }
-        #kiss-btn { padding: 12px 26px; background: var(--neon-blue); border: none; border-radius: 30px; font-size: 1.05rem; color: #fff; cursor: pointer; box-shadow: 0 0 16px rgba(51,204,255,0.35); transition: transform .18s, box-shadow .18s; }
-        #kiss-btn:hover { transform: scale(1.06); box-shadow: 0 0 30px rgba(51,204,255,0.6); }
-
-        /* ensure our new elements reveal nicely */
-        .typewriter-wrap, .floating-notes, .kiss-section { opacity: 0; transform: translateY(20px); transition: all .6s ease; }
-        .typewriter-wrap.active, .floating-notes.active, .kiss-section.active { opacity: 1; transform: translateY(0); }
-    </style>
 </head>
 <body>
 
@@ -443,7 +408,7 @@
 
     <div id="main-content">
         <div class="container">
-
+            
             <div class="letter-paper reveal">
                 <div class="message-text">
                     <p><strong>My Dearest Courtney,</strong></p>
@@ -474,28 +439,13 @@
                 <p style="margin-top: 15px; color: #f95656; font-size: 0.9rem;">remember this date now dumbass</p>
             </div>
 
-            <!-- CUSTOM ADDITIONS: Typewriter, Floating Notes, Kiss Button (added without removing existing code) -->
-            <div class="typewriter-wrap reveal" id="typewriter-wrap">
-                <div class="typewriter-box">
-                    <p id="typewriter-text"></p>
-                </div>
-            </div>
-
-            <div class="floating-notes reveal" id="floating-notes"></div>
-
-            <div class="kiss-section reveal" id="kiss-wrap" style="margin-top:18px;">
-                <button id="kiss-btn">Want Kiss?</button>
-            </div>
-
-            <!-- END CUSTOM ADDITIONS -->
-
             <div class="gallery-section reveal">
                 <div class="gallery-title">Some of my favourite chats</div>
                 <p style="color: #42f4f7; margin-top: 10px;">i mean i like every chat of us but yk i like them a little more</p>
                 <div class="gallery-grid" id="gallery-container">
                 </div>
             </div>
-
+            
         </div>
     </div>
 
@@ -518,7 +468,7 @@
 
     <div class="music-player-bar" id="music-player-bar" style="display:none;">
         <audio id="audio-element" src="voice-message.mp3" preload="metadata"></audio>
-
+        
         <div class="player-top">
             <div class="play-info">
                 <button id="play-pause-btn" class="play-btn">
@@ -550,31 +500,25 @@
         </div>
     </div>
 
-    <!-- kiss audios (user provided names) -->
-    <audio id="kiss-audio" src="kiss-short.mp3" preload="auto"></audio>
-    <audio id="kiss-audio-long" src="kiss-long.mp3" preload="auto"></audio>
-
     <script>
         // --- 1. Start Experience ---
         function startExperience() {
             const intro = document.getElementById('intro-screen');
             const main = document.getElementById('main-content');
             const musicBar = document.getElementById('music-player-bar');
-
+            
             intro.style.opacity = '0';
             setTimeout(() => {
                 intro.style.display = 'none';
                 main.style.display = 'block';
                 musicBar.style.display = 'flex';
-
+                
                 setTimeout(() => {
                     main.style.opacity = '1';
                     launchConfetti();
                     loadGalleryImages();
                     // Trigger scroll observer check once content is loaded
                     checkScroll();
-                    // Custom features: start after main is revealed
-                    safeStartCustomFeatures();
                 }, 50);
             }, 800);
         }
@@ -634,10 +578,10 @@
                 card.className = 'memory-card';
                 card.style.animationDelay = `${imageIndex * 0.1}s`;
                 card.onclick = () => openLightbox(imageIndex);
-
+                
                 const visibleImg = document.createElement('img');
                 visibleImg.src = src;
-
+                
                 card.appendChild(visibleImg);
                 container.appendChild(card);
             }
@@ -686,14 +630,14 @@
         lightboxClose.addEventListener('click', closeLightbox);
         lightboxPrev.addEventListener('click', showPrevImage);
         lightboxNext.addEventListener('click', showNextImage);
-
+        
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) closeLightbox();
         });
 
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
-
+            
             if (e.key === 'Escape') closeLightbox();
             if (e.key === 'ArrowLeft') showPrevImage();
             if (e.key === 'ArrowRight') showNextImage();
@@ -799,141 +743,5 @@
             }());
         }
     </script>
-
-    <!-- ADDED SCRIPT: typewriter, floating notes and kiss logic (keeps original script above untouched) -->
-    <script>
-    (function(){
-        // ensure we only initialize custom features once
-        let customStarted = false;
-
-        function safeStartCustomFeatures(){
-            if(customStarted) return;
-            // wait briefly for main to be visible
-            const main = document.getElementById('main-content');
-            let attempts = 0;
-            const waiter = setInterval(()=>{
-                attempts++;
-                const style = window.getComputedStyle(main);
-                if(style.display !== 'none' && parseFloat(style.opacity) > 0){
-                    clearInterval(waiter);
-                    startTypewriter();
-                    startFloatingNotes();
-                    initKissButton();
-                    revealCustomElements();
-                    customStarted = true;
-                }
-                if(attempts > 40){ // ~2s timeout fallback
-                    clearInterval(waiter);
-                    startTypewriter();
-                    startFloatingNotes();
-                    initKissButton();
-                    revealCustomElements();
-                    customStarted = true;
-                }
-            },50);
-        }
-
-        // Expose for startExperience to call
-        window.safeStartCustomFeatures = safeStartCustomFeatures;
-
-        // TYPEWRITER
-        const TYPE_TEXT = "Courtney... I love you more than you can ever imagine.";
-        let twIndex = 0, twTimer = null;
-        function startTypewriter(){
-            const el = document.getElementById('typewriter-text');
-            if(!el) return;
-            el.textContent = '';
-            twIndex = 0;
-            function tick(){
-                if(twIndex < TYPE_TEXT.length){
-                    el.textContent += TYPE_TEXT.charAt(twIndex);
-                    twIndex++;
-                    twTimer = setTimeout(tick, 70);
-                } else {
-                    clearTimeout(twTimer);
-                }
-            }
-            tick();
-        }
-
-        // FLOATING NOTES (optimized)
-        const NOTES = [
-            "You make my days better ❤️",
-            "I miss you every day ",
-            "You’re my favourite human 💖",
-            "I’m proud of you ",
-            "You’re adorable fr 🫶",
-            "My princess forever 👑",
-            "You light up my phone "
-        ];
-        let notesInterval = null;
-        function startFloatingNotes(){
-            const box = document.getElementById('floating-notes');
-            if(!box) return;
-            let active = 0;
-            notesInterval = setInterval(()=>{
-                if(active > 6) return;
-                const n = document.createElement('div');
-                n.className = 'note';
-                n.textContent = NOTES[Math.floor(Math.random()*NOTES.length)];
-                n.style.left = Math.max(4, Math.random()*72) + '%';
-                const s = 0.9 + Math.random()*0.3;
-                n.style.transform = `translateY(0) scale(${s})`;
-                box.appendChild(n);
-                active++;
-                setTimeout(()=>{ n.remove(); active--; }, 5200);
-            }, 1400);
-        }
-
-        // KISS BUTTON LOGIC
-        let kissCount = 0;
-        function initKissButton(){
-            const btn = document.getElementById('kiss-btn');
-            const short = document.getElementById('kiss-audio');
-            const long = document.getElementById('kiss-audio-long');
-            if(!btn) return;
-            btn.addEventListener('click', ()=>{
-                kissCount++;
-                if(kissCount === 1){
-                    try{ short.currentTime = 0; short.play(); }catch(e){}
-                    btn.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:240});
-                } else {
-                    btn.innerText = "I see you want more";
-                    try{ long.currentTime = 0; long.play(); }catch(e){}
-                    btn.animate([{boxShadow:'0 0 16px rgba(51,204,255,0.35)'},{boxShadow:'0 0 34px rgba(51,204,255,0.7)'},{boxShadow:'0 0 16px rgba(51,204,255,0.35)'}],{duration:300});
-                }
-            });
-        }
-
-        // reveal the new elements with same reveal behavior
-        function revealCustomElements(){
-            const wraps = ['#typewriter-wrap','#floating-notes','#kiss-wrap'];
-            wraps.forEach(sel=>{
-                const el = document.querySelector(sel);
-                if(!el) return;
-                el.classList.add('active');
-            });
-        }
-
-        // cleanup on unload
-        window.addEventListener('beforeunload', ()=>{
-            try{ clearInterval(notesInterval); }catch(e){}
-        });
-
-        // If user bypasses intro (main already visible), start right away
-        document.addEventListener('DOMContentLoaded', ()=>{
-            const main = document.getElementById('main-content');
-            if(window.getComputedStyle(main).display !== 'none'){
-                safeStartCustomFeatures();
-            }
-        });
-
-        // Expose for debug if needed
-        window._customFeatures = {
-            startTypewriter, startFloatingNotes, initKissButton
-        };
-    })();
-    </script>
-
 </body>
 </html>
