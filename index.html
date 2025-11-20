@@ -6,7 +6,7 @@
     <title>Happy Birthday Courtney!</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
@@ -14,6 +14,7 @@
             --neon-pink: #ff00cc;
             --neon-blue: #33ccff;
             --text-main: #ffffff;
+            --glass-bg: rgba(20, 20, 35, 0.85);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -25,10 +26,10 @@
             color: var(--text-main);
             overflow-x: hidden;
             min-height: 100vh;
-            padding-bottom: 140px; /* Space for mobile player */
+            padding-bottom: 160px; /* Extra space for bigger player */
         }
 
-        /* Stars Background */
+        /* --- Animated Stars Background --- */
         .stars {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: -1;
@@ -38,7 +39,7 @@
         }
         @keyframes starsMove { from {transform: translateY(0);} to {transform: translateY(-400px);} }
 
-        /* Intro Screen */
+        /* --- Intro Screen --- */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0f0c29;
@@ -55,138 +56,180 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 0, 204, 0.5);
         }
 
         .start-btn {
             background: linear-gradient(45deg, var(--neon-pink), #9900ff);
-            color: white; border: none; padding: 15px 40px;
+            color: white; border: none; padding: 15px 45px;
             font-size: 1.2rem; border-radius: 50px;
-            cursor: pointer; margin-top: 20px;
+            cursor: pointer; margin-top: 25px;
             box-shadow: 0 0 30px rgba(255, 0, 204, 0.5);
             animation: pulseBtn 2s infinite;
+            transition: transform 0.2s;
         }
+        .start-btn:active { transform: scale(0.95); }
 
-        /* Main Content */
+        /* --- Main Content --- */
         #main-content { display: none; opacity: 0; transition: opacity 1s; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
 
-        /* --- Automatic Gallery --- */
-        .gallery-section { margin: 30px 0 50px 0; text-align: center; }
-        .gallery-title {
-            font-family: 'Dancing Script'; font-size: 2.2rem; color: var(--neon-blue);
-            margin-bottom: 20px; text-shadow: 0 0 10px var(--neon-blue);
+        /* --- The Letter --- */
+        .letter-paper {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 40px 25px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            margin-top: 20px;
+            margin-bottom: 60px;
+            transform: translateY(0);
+            animation: floatPaper 6s ease-in-out infinite;
         }
+
+        .message-text { font-size: 1.1rem; line-height: 1.7; color: #e0e0e0; }
+        .message-text p { margin-bottom: 20px; opacity: 0; transform: translateY(20px); transition: all 0.8s ease; }
+        .message-text p.visible { opacity: 1; transform: translateY(0); }
         
+        .highlight { color: var(--neon-pink); font-weight: bold; text-shadow: 0 0 5px rgba(255,0,204,0.4); }
+        .highlight-blue { color: var(--neon-blue); font-weight: bold; text-shadow: 0 0 5px rgba(51,204,255,0.4); }
+        .signature {
+            text-align: right; font-family: 'Dancing Script'; font-size: 2.2rem; 
+            color: var(--neon-pink); margin-top: 40px;
+        }
+
+        /* --- Gallery Section (After Message) --- */
+        .gallery-section { margin-bottom: 40px; text-align: center; }
+        .gallery-title {
+            font-family: 'Dancing Script'; font-size: 2.5rem; color: var(--neon-blue);
+            margin-bottom: 10px; text-shadow: 0 0 15px var(--neon-blue);
+        }
+        .gallery-subtitle { font-size: 0.9rem; color: #aaa; margin-bottom: 30px; font-style: italic;}
+
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 Columns on mobile */
-            gap: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
             perspective: 1000px;
+            padding: 10px;
         }
-
-        @media (min-width: 600px) {
-            .gallery-grid { grid-template-columns: repeat(3, 1fr); }
-        }
+        @media (min-width: 600px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); } }
 
         .memory-card {
-            background: white; padding: 6px; padding-bottom: 25px;
-            border-radius: 2px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            animation: popIn 0.5s ease backwards;
+            background: white; padding: 8px; padding-bottom: 30px;
+            border-radius: 4px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            position: relative; cursor: pointer;
+            animation: popIn 0.6s ease backwards;
         }
 
-        /* The "Messy Table" Look */
+        /* Tilted Effect */
         .memory-card:nth-child(odd) { transform: rotate(3deg); }
-        .memory-card:nth-child(even) { transform: rotate(-3deg); margin-top: 15px; }
-        .memory-card:nth-child(3n) { transform: rotate(2deg); margin-top: -5px; }
-
-        .memory-card:hover, .memory-card:active {
-            transform: scale(1.1) rotate(0deg) !important;
-            z-index: 100;
+        .memory-card:nth-child(even) { transform: rotate(-2deg); margin-top: 15px; }
+        
+        .memory-card:hover {
+            transform: scale(1.05) rotate(0deg) !important;
+            z-index: 10;
             box-shadow: 0 0 25px var(--neon-pink);
         }
 
         .memory-card img {
-            width: 100%; height: 150px; object-fit: cover;
-            filter: sepia(20%);
+            width: 100%; height: 160px; object-fit: cover;
+            filter: sepia(20%); transition: filter 0.3s;
+        }
+        .memory-card:hover img { filter: sepia(0%); }
+
+        /* --- Lightbox (Full Screen View) --- */
+        #lightbox {
+            display: none; position: fixed; z-index: 10000;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            justify-content: center; align-items: center;
+            flex-direction: column;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        #lightbox img {
+            max-width: 90%; max-height: 80vh;
+            border: 5px solid white; border-radius: 4px;
+            box-shadow: 0 0 50px rgba(255,255,255,0.2);
+            transform: scale(0.8); transition: transform 0.3s;
+        }
+        #lightbox.active { opacity: 1; }
+        #lightbox.active img { transform: scale(1); }
+        
+        .lightbox-close {
+            position: absolute; top: 20px; right: 20px;
+            color: white; font-size: 2rem; cursor: pointer;
+            background: rgba(255,255,255,0.1); width: 50px; height: 50px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
         }
 
-        /* --- Letter --- */
-        .letter-paper {
-            background: rgba(20, 20, 35, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 30px 20px;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            margin-top: 30px;
-        }
-        .message-text { font-size: 1.1rem; line-height: 1.6; color: #e0e0e0; }
-        .message-text p { margin-bottom: 20px; }
-        .highlight { color: var(--neon-pink); font-weight: bold; }
-        .highlight-blue { color: var(--neon-blue); font-weight: bold; }
-
-        /* --- Ultimate Audio Player (Mobile Optimized) --- */
+        /* --- Advanced Audio Player --- */
         .music-player-bar {
-            position: fixed; bottom: 15px; left: 50%;
+            position: fixed; bottom: 20px; left: 50%;
             transform: translateX(-50%);
-            width: 95%; max-width: 500px;
-            background: rgba(15, 15, 25, 0.95);
+            width: 95%; max-width: 600px;
+            background: rgba(16, 16, 28, 0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 0, 204, 0.3);
-            border-radius: 15px;
-            padding: 12px 20px;
+            border: 1px solid rgba(255, 0, 204, 0.4);
+            border-radius: 20px;
+            padding: 15px 25px;
             display: flex; flex-direction: column;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.8);
-            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            z-index: 5000;
         }
 
+        /* Top Row: Controls + Info + Volume */
         .player-top {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px; gap: 10px;
         }
 
-        .play-info { display: flex; align-items: center; gap: 12px; }
-        
+        .left-controls { display: flex; align-items: center; gap: 15px; flex: 1; }
+
         .play-btn {
-            width: 42px; height: 42px; border-radius: 50%;
+            width: 45px; height: 45px; border-radius: 50%;
             background: var(--neon-pink); border: none; color: white;
-            font-size: 1.1rem; cursor: pointer;
-            box-shadow: 0 0 10px var(--neon-pink);
-            display: grid; place-items: center;
+            font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-pink);
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.2s;
         }
+        .play-btn:active { transform: scale(0.9); }
 
-        .track-details { display: flex; flex-direction: column; }
-        .track-name { font-size: 0.9rem; font-weight: bold; color: white; }
-        .track-status { font-size: 0.7rem; color: var(--neon-blue); }
+        .track-info { display: flex; flex-direction: column; min-width: 0; }
+        .track-name { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-status { font-size: 0.75rem; color: var(--neon-blue); }
 
-        /* Visualizer */
-        .visualizer { display: flex; align-items: flex-end; gap: 2px; height: 15px; }
-        .bar { width: 3px; background: var(--neon-blue); animation: bounce 0.5s infinite alternate; }
-        .paused .bar { animation-play-state: paused; height: 2px; }
-        @keyframes bounce { 0% { height: 2px; } 100% { height: 15px; } }
+        /* Volume Control Section */
+        .volume-container {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px;
+        }
+        .volume-icon { color: #aaa; font-size: 0.9rem; }
+        #volume-slider { width: 60px; accent-color: var(--neon-blue); height: 4px; }
 
-        /* Big Touch-Friendly Slider */
+        /* Timeline */
         .progress-wrapper {
             width: 100%; display: flex; align-items: center; gap: 10px;
             font-size: 0.75rem; color: #aaa;
         }
-        
-        input[type=range] {
-            -webkit-appearance: none; width: 100%; background: transparent; height: 20px;
+        .timeline-slider {
+            flex: 1; -webkit-appearance: none; background: transparent; height: 20px; cursor: pointer;
         }
-        input[type=range]::-webkit-slider-thumb {
+        .timeline-slider::-webkit-slider-thumb {
             -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%;
             background: var(--neon-pink); margin-top: -5px;
             box-shadow: 0 0 10px var(--neon-pink);
         }
-        input[type=range]::-webkit-slider-runnable-track {
+        .timeline-slider::-webkit-slider-runnable-track {
             width: 100%; height: 4px; background: #444; border-radius: 2px;
         }
 
         @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes floatPaper { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
@@ -196,42 +239,62 @@
 
     <div id="intro-screen">
         <h1 class="title">Happy Birthday<br>Princess! 👑</h1>
-        <p style="color: #ccc; margin-top: 10px;">Tap to start the surprise...</p>
+        <p style="color: #ccc; margin-top: 10px;">Tap below to start the surprise...</p>
         <button class="start-btn" onclick="startExperience()">
-            <i class="fas fa-heart"></i> Open Now
+            <i class="fas fa-gift"></i> Open Now
         </button>
+    </div>
+
+    <div id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-close">&times;</div>
+        <img id="lightbox-img" src="" alt="Full Screen Memory">
     </div>
 
     <div id="main-content">
         <div class="container">
             
+            <div class="letter-paper">
+                <div class="message-text" id="scrolling-text">
+                    <p><strong>My Dearest Courtney,</strong></p>
+
+                    <p>Happy Birthday! 🎉</p>
+
+                    <p>I’m writing this because sometimes saying things out loud doesn't quite capture everything I feel...</p>
+
+                    <p>Happy birthday, <span class="highlight">my favourite person in this world!!!</span></p>
+
+                    <p>Eighteen... finally legal enough to make even bigger decisions (dw ill be there to support you). You have become such a special part of my life that even the distance feels smaller when i think of you bean bag.</p>
+
+                    <p>Hope this year gives you everything you have been wishing for and maybe a little more than that. I hope every problem gets solved so my princess always stays happy like she should.</p>
+
+                    <p>Enjoy your <span class="highlight-blue">best birthday ever</span>. Eat, dance, make a mess, have the time of your life! 💃🍰</p>
+
+                    <p>I wish i could be there to steal your cake and celebrate with you. I mean, I will do it some day, but you have to wait for that day.</p>
+
+                    <p>Have fun my <span class="highlight">OREOOOOOOOOOOOOO</span>. I would eat you instead of the cake because you are more delicious than anything.</p>
+
+                    <p><strong>AND don't go growing up too fast though…</strong> bc i still need someone to bully me occasionally.</p>
+
+                    <p>Happy birthday Courtney. Stay the same dumbass you always have been to me (or try to be smarter, though I don't think you can be that). Consider being a little more kind after bullying me (highly appreciated) and also consider being a little less scary because sometimes you scare me a lott.</p>
+
+                    <p>I hope you have a good life ahead, you do deserve a good one actually and get everything you want in your life andddddd...</p>
+
+                    <p>I lovee youuuuuuuu sooo much my <span class="highlight">small beaver</span> (that is slowly getting bigger). Have the best day of your life. I mean everyday should be best but yk today should be the <strong>bestesttt</strong>.</p>
+
+                    <div class="signature">
+                        With love,<br>Ashish
+                    </div>
+                </div>
+            </div>
+
             <div class="gallery-section">
                 <div class="gallery-title">Memory Lane 📸</div>
+                <div class="gallery-subtitle">(Tap any photo to enlarge)</div>
                 <div class="gallery-grid" id="gallery-container">
                     </div>
             </div>
 
-            <div class="letter-paper">
-                <div class="message-text">
-                    <p><strong>My Dearest Courtney,</strong></p>
-                    <p>Happy Birthday! 🎉</p>
-                    <p>I’m writing this because sometimes saying things out loud doesn't quite capture everything I feel...</p>
-                    <p>Happy birthday, <span class="highlight">my favourite person in this world!!!</span></p>
-                    <p>Eighteen... finally legal enough to make even bigger decisions (dw ill be there to support you). You have become such a special part of my life that even the distance feels smaller when i think of you bean bag.</p>
-                    <p>Hope this year gives you everything you have been wishing for and maybe a little more than that. I hope every problem gets solved so my princess always stays happy like she should.</p>
-                    <p>Enjoy your <span class="highlight-blue">best birthday ever</span>. Eat, dance, make a mess, have the time of your life! 💃🍰</p>
-                    <p>I wish i could be there to steal your cake and celebrate with you. I mean, I will do it some day, but you have to wait for that day.</p>
-                    <p>Have fun my <span class="highlight">OREOOOOOOOOOOOOO</span>. I would eat you instead of the cake because you are more delicious than anything.</p>
-                    <p><strong>AND don't go growing up too fast though…</strong> bc i still need someone to bully me occasionally.</p>
-                    <p>Happy birthday Courtney. Stay the same dumbass you always have been to me (or try to be smarter, though I don't think you can be that). Consider being a little more kind after bullying me (highly appreciated) and also consider being a little less scary because sometimes you scare me a lott.</p>
-                    <p>I hope you have a good life ahead, you do deserve a good one actually and get everything you want in your life andddddd...</p>
-                    <p>I lovee youuuuuuuu sooo much my <span class="highlight">small beaver</span> (that is slowly getting bigger). Have the best day of your life. I mean everyday should be best but yk today should be the <strong>bestesttt</strong>.</p>
-                    <p style="text-align: right; font-family: 'Dancing Script'; font-size: 2rem; color: var(--neon-pink); margin-top: 30px;">
-                        With love,<br>Ashish
-                    </p>
-                </div>
-            </div>
-            
+            <div style="height: 100px;"></div>
         </div>
     </div>
 
@@ -239,29 +302,31 @@
         <audio id="audio-element" src="voice-message.mp3" preload="metadata"></audio>
         
         <div class="player-top">
-            <div class="play-info">
+            <div class="left-controls">
                 <button id="play-pause-btn" class="play-btn">
                     <i class="fas fa-play"></i>
                 </button>
-                <div class="track-details">
-                    <div class="track-name">Your Birthday Message 🎙️</div>
+                <div class="track-info">
+                    <div class="track-name">Birthday Voice Message 🎙️</div>
                     <div class="track-status" id="track-status">Paused</div>
                 </div>
             </div>
-            <div class="visualizer paused" id="visualizer">
-                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+
+            <div class="volume-container">
+                <i class="fas fa-volume-up volume-icon" id="vol-icon"></i>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
             </div>
         </div>
 
         <div class="progress-wrapper">
             <span id="current-time">0:00</span>
-            <input type="range" id="seek-slider" max="100" value="0">
+            <input type="range" id="seek-slider" class="timeline-slider" max="100" value="0">
             <span id="duration">...</span>
         </div>
     </div>
 
     <script>
-        // --- 1. Start Experience ---
+        // --- 1. Experience Start & Scroll Animations ---
         function startExperience() {
             const intro = document.getElementById('intro-screen');
             const main = document.getElementById('main-content');
@@ -276,53 +341,74 @@
                 setTimeout(() => {
                     main.style.opacity = '1';
                     launchConfetti();
-                    loadGalleryImages(); // Start loading local images
+                    loadGalleryImages();
+                    setupScrollAnimation();
                 }, 50);
             }, 800);
         }
 
-        // --- 2. SMART Image Loader (Checks all formats) ---
+        function setupScrollAnimation() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.message-text p').forEach(p => {
+                observer.observe(p);
+            });
+        }
+
+        // --- 2. Smart Image Loader & Lightbox ---
         const supportedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        function openLightbox(src) {
+            lightbox.style.display = 'flex';
+            lightboxImg.src = src;
+            // Small delay for opacity transition
+            setTimeout(() => lightbox.classList.add('active'), 10);
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            setTimeout(() => lightbox.style.display = 'none', 300);
+        }
 
         function loadGalleryImages() {
             const container = document.getElementById('gallery-container');
 
             function tryLoadImage(index) {
-                // Recursive function to check extensions for a specific number
                 const checkExtension = (extIndex) => {
                     if (extIndex >= supportedExtensions.length) {
-                        // All extensions failed for this number. Assume end of list.
-                        console.log(`Finished loading images. Stopped at number ${index}`);
+                        console.log(`Finished loading images. Total: ${index-1}`);
                         return;
                     }
-
                     const ext = supportedExtensions[extIndex];
-                    const img = new Image();
                     const src = `photos/${index}.${ext}`;
-
+                    const img = new Image();
                     img.src = src;
 
                     img.onload = function() {
-                        // Success! We found the valid format.
                         createMemoryCard(src, index);
-                        // Move to next number (start checking from 0 again)
                         tryLoadImage(index + 1);
                     };
-
                     img.onerror = function() {
-                        // This extension failed, try the next one for the SAME number
                         checkExtension(extIndex + 1);
                     };
                 }
-
-                // Start checking extensions for the current index
                 checkExtension(0);
             }
 
             function createMemoryCard(src, index) {
                 const card = document.createElement('div');
                 card.className = 'memory-card';
-                card.style.animationDelay = `${index * 0.1}s`; // Stagger animation
+                card.style.animationDelay = `${index * 0.1}s`;
+                // Click to open Lightbox
+                card.onclick = () => openLightbox(src);
                 
                 const visibleImg = document.createElement('img');
                 visibleImg.src = src;
@@ -330,36 +416,36 @@
                 card.appendChild(visibleImg);
                 container.appendChild(card);
             }
-
-            // Start with number 1
             tryLoadImage(1);
         }
 
-        // --- 3. Audio Player Logic ---
+        // --- 3. Audio Player (With Volume) ---
         const audio = document.getElementById('audio-element');
         const playBtn = document.getElementById('play-pause-btn');
         const seekSlider = document.getElementById('seek-slider');
         const currentTimeEl = document.getElementById('current-time');
         const durationEl = document.getElementById('duration');
-        const visualizer = document.getElementById('visualizer');
         const trackStatus = document.getElementById('track-status');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volIcon = document.getElementById('vol-icon');
+        
         let isPlaying = false;
 
+        // Play/Pause
         playBtn.addEventListener('click', () => {
             if(isPlaying) {
                 audio.pause();
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                visualizer.classList.add('paused');
                 trackStatus.textContent = "Paused";
             } else {
                 audio.play();
                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                visualizer.classList.remove('paused');
                 trackStatus.textContent = "Playing...";
             }
             isPlaying = !isPlaying;
         });
 
+        // Time Update
         audio.addEventListener('timeupdate', () => {
             const progress = (audio.currentTime / audio.duration) * 100;
             seekSlider.value = progress || 0;
@@ -370,9 +456,27 @@
             durationEl.textContent = formatTime(audio.duration);
         });
 
+        audio.addEventListener('ended', () => {
+            playBtn.innerHTML = '<i class="fas fa-redo"></i>';
+            trackStatus.textContent = "Replay?";
+            isPlaying = false;
+        });
+
+        // Seeking
         seekSlider.addEventListener('input', () => {
             const time = (seekSlider.value / 100) * audio.duration;
             audio.currentTime = time;
+        });
+
+        // Volume Control
+        volumeSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            audio.volume = value;
+            
+            // Update Icon based on volume
+            if(value == 0) volIcon.className = "fas fa-volume-mute volume-icon";
+            else if(value < 0.5) volIcon.className = "fas fa-volume-down volume-icon";
+            else volIcon.className = "fas fa-volume-up volume-icon";
         });
 
         function formatTime(seconds) {
