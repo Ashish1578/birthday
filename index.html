@@ -66,9 +66,21 @@
             animation: pulseBtn 2s infinite;
         }
 
-        /* Main Content */
+        /* Main Content & Scroll Animation Classes */
         #main-content { display: none; opacity: 0; transition: opacity 1s; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        /* Animation Reveal Class */
+        .reveal {
+            position: relative;
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 1s ease;
+        }
+        .reveal.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
 
         /* Letter */
         .letter-paper {
@@ -85,6 +97,46 @@
         .message-text p { margin-bottom: 20px; }
         .highlight { color: var(--neon-pink); font-weight: bold; }
         .highlight-blue { color: var(--neon-blue); font-weight: bold; }
+
+        /* Special "First Chat" Section */
+        .special-memory-section {
+            margin: 60px 0;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(51, 204, 255, 0.2);
+        }
+
+        .special-title {
+            font-family: 'Dancing Script';
+            font-size: 2.5rem;
+            color: var(--neon-pink);
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .chat-frame {
+            background: white;
+            padding: 10px;
+            display: inline-block;
+            transform: rotate(-2deg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+            max-width: 100%;
+        }
+
+        .chat-frame:hover {
+            transform: rotate(0deg) scale(1.02);
+        }
+
+        .chat-frame img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border: 1px solid #eee;
+        }
 
         /* Gallery Section */
         .gallery-section { margin: 30px 0 50px 0; text-align: center; }
@@ -153,19 +205,23 @@
             max-width: 90%;
             max-height: 90%;
             animation: zoomIn 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .lightbox-img {
             max-width: 100%;
-            max-height: 90vh;
+            max-height: 85vh;
             object-fit: contain;
             border-radius: 8px;
             box-shadow: 0 0 50px rgba(255, 0, 204, 0.5);
         }
 
+        /* FIX: Buttons moved to fixed position on screen edges */
         .lightbox-close {
             position: absolute;
-            top: -40px; right:0;
+            top: 20px; right: 20px;
             background: var(--neon-pink);
             border: none;
             color: white;
@@ -175,14 +231,11 @@
             cursor: pointer;
             box-shadow: 0 0 15px var(--neon-pink);
             transition: all 0.3s;
-        }
-
-        .lightbox-close:hover {
-            transform: scale(1.1);
+            z-index: 10002;
         }
 
         .lightbox-nav {
-            position: absolute;
+            position: fixed; /* Changed from absolute to fixed */
             top: 50%;
             transform: translateY(-50%);
             background: rgba(255, 0, 204, 0.8);
@@ -194,6 +247,7 @@
             cursor: pointer;
             box-shadow: 0 0 15px var(--neon-pink);
             transition: all 0.3s;
+            z-index: 10002;
         }
 
         .lightbox-nav:hover {
@@ -201,6 +255,7 @@
             transform: translateY(-50%) scale(1.1);
         }
 
+        /* FIX: Fixed buttons to viewport edges */
         .lightbox-prev { left: 20px; }
         .lightbox-next { right: 20px; }
 
@@ -236,8 +291,9 @@
             margin-bottom: 10px;
         }
 
-        .play-info { display: flex; align-items: center; gap: 12px; }
+        .play-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         
+        /* FIX: Added flex-shrink to prevent compression */
         .play-btn {
             width: 42px; height: 42px; border-radius: 50%;
             background: var(--neon-pink); border: none; color: white;
@@ -245,14 +301,18 @@
             box-shadow: 0 0 10px var(--neon-pink);
             display: grid; place-items: center;
             transition: all 0.3s;
+            flex-shrink: 0; /* Stops the button from squishing */
         }
 
         .play-btn:active {
             transform: scale(0.95);
         }
 
-        .track-details { display: flex; flex-direction: column; }
-        .track-name { font-size: 0.9rem; font-weight: bold; color: white; }
+        .track-details { display: flex; flex-direction: column; overflow: hidden; }
+        .track-name { 
+            font-size: 0.9rem; font-weight: bold; color: white; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
         .track-status { font-size: 0.7rem; color: var(--neon-blue); }
 
         /* Volume Controls */
@@ -260,6 +320,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-shrink: 0;
         }
 
         .volume-btn {
@@ -278,7 +339,7 @@
         }
 
         .volume-slider-wrapper {
-            width: 80px;
+            width: 60px; /* Slightly reduced */
             display: flex;
             align-items: center;
         }
@@ -338,7 +399,7 @@
     <div class="stars"></div>
 
     <div id="intro-screen">
-        <h1 class="title">Happy Birthday<br>Princess! 👑</h1>
+        <h1 class="title">Happy Birthday<br>Princess! 荘</h1>
         <p style="color: #ccc; margin-top: 10px;">Tap to start the surprise...</p>
         <button class="start-btn" onclick="startExperience()">
             <i class="fas fa-heart"></i> Open Now
@@ -348,18 +409,18 @@
     <div id="main-content">
         <div class="container">
             
-            <div class="letter-paper">
+            <div class="letter-paper reveal">
                 <div class="message-text">
                     <p><strong>My Dearest Courtney,</strong></p>
-                    <p>Happy Birthday! 🎉</p>
+                    <p>Happy Birthday! 脂</p>
                     <p>I'm writing this because sometimes saying things out loud doesn't quite capture everything I feel...</p>
                     <p>Happy birthday, <span class="highlight">my favourite person in this world!!!</span></p>
                     <p>Eighteen... finally legal enough to make even bigger decisions (dw ill be there to support you). You have become such a special part of my life that even the distance feels smaller when i think of you bean bag.</p>
                     <p>Hope this year gives you everything you have been wishing for and maybe a little more than that. I hope every problem gets solved so my princess always stays happy like she should.</p>
-                    <p>Enjoy your <span class="highlight-blue">best birthday ever</span>. Eat, dance, make a mess, have the time of your life! 💃🍰</p>
+                    <p>Enjoy your <span class="highlight-blue">best birthday ever</span>. Eat, dance, make a mess, have the time of your life! 茶魂</p>
                     <p>I wish i could be there to steal your cake and celebrate with you. I mean, I will do it some day, but you have to wait for that day.</p>
                     <p>Have fun my <span class="highlight">OREOOOOOOOOOOOOO</span>. I would eat you instead of the cake because you are more delicious than anything.</p>
-                    <p><strong>AND don't go growing up too fast though…</strong> bc i still need someone to bully me occasionally.</p>
+                    <p><strong>AND don't go growing up too fast though窶ｦ</strong> bc i still need someone to bully me occasionally.</p>
                     <p>Happy birthday Courtney. Stay the same dumbass you always have been to me (or try to be smarter, though I don't think you can be that). Consider being a little more kind after bullying me (highly appreciated) and also consider being a little less scary because sometimes you scare me a lott.</p>
                     <p>I hope you have a good life ahead, you do deserve a good one actually and get everything you want in your life andddddd...</p>
                     <p>I lovee youuuuuuuu sooo much my <span class="highlight">small beaver</span> (that is slowly getting bigger). Have the best day of your life. I mean everyday should be best but yk today should be the <strong>bestesttt</strong>.</p>
@@ -369,7 +430,15 @@
                 </div>
             </div>
 
-            <div class="gallery-section">
+            <div class="special-memory-section reveal">
+                <div class="special-title">The First Thing We Talked About</div>
+                <div class="chat-frame">
+                    <img src="first-chat.png" alt="Our First Conversation" />
+                </div>
+                <p style="margin-top: 15px; color: #ccc; font-size: 0.9rem;">Where it all began... </p>
+            </div>
+
+            <div class="gallery-section reveal">
                 <div class="gallery-title">Some of my favourite chats</div>
                 <p style="color: #ccc; margin-top: 10px;">i mean i like every chat of us but yk i like them a little more</p>
                 <div class="gallery-grid" id="gallery-container">
@@ -379,19 +448,19 @@
         </div>
     </div>
 
-    <!-- Lightbox Modal -->
     <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightbox-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <button class="lightbox-nav lightbox-prev" id="lightbox-prev">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="lightbox-nav lightbox-next" id="lightbox-next">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
         <div class="lightbox-content">
-            <button class="lightbox-close" id="lightbox-close">
-                <i class="fas fa-times"></i>
-            </button>
-            <button class="lightbox-nav lightbox-prev" id="lightbox-prev">
-                <i class="fas fa-chevron-left"></i>
-            </button>
             <img class="lightbox-img" id="lightbox-img" src="" alt="Memory">
-            <button class="lightbox-nav lightbox-next" id="lightbox-next">
-                <i class="fas fa-chevron-right"></i>
-            </button>
             <div class="image-counter" id="image-counter">1 / 1</div>
         </div>
     </div>
@@ -447,9 +516,27 @@
                     main.style.opacity = '1';
                     launchConfetti();
                     loadGalleryImages();
+                    // Trigger scroll observer check once content is loaded
+                    checkScroll();
                 }, 50);
             }, 800);
         }
+
+        // --- SCROLL ANIMATION LOGIC ---
+        function checkScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            const windowHeight = window.innerHeight;
+            const elementVisible = 100;
+
+            reveals.forEach((reveal) => {
+                const elementTop = reveal.getBoundingClientRect().top;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', checkScroll);
 
         // --- 2. SMART Image Loader ---
         const supportedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
