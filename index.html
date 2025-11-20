@@ -859,12 +859,12 @@
         // FLOATING NOTES (optimized)
         const NOTES = [
             "You make my days better ❤️",
-            "I miss you every day ",
-            "You’re my favourite human 💖",
-            "I’m proud of you ",
-            "You’re adorable fr 🫶",
+            "I miss you every day 💫",
+            "You're my favourite human 💖",
+            "I'm proud of you ✨",
+            "You're adorable fr 🫶",
             "My princess forever 👑",
-            "You light up my phone "
+            "You light up my phone 🔥"
         ];
         let notesInterval = null;
         function startFloatingNotes(){
@@ -885,7 +885,7 @@
             }, 1400);
         }
 
-        // KISS BUTTON LOGIC
+        // KISS BUTTON LOGIC - MODIFIED
         let kissCount = 0;
         function initKissButton(){
             const btn = document.getElementById('kiss-btn');
@@ -894,13 +894,31 @@
             if(!btn) return;
             btn.addEventListener('click', ()=>{
                 kissCount++;
+                
+                // First click: play short kiss
                 if(kissCount === 1){
                     try{ short.currentTime = 0; short.play(); }catch(e){}
                     btn.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:240});
-                } else {
+                } 
+                // Second click: change text and play long kiss
+                else if(kissCount === 2){
                     btn.innerText = "I see you want more";
                     try{ long.currentTime = 0; long.play(); }catch(e){}
                     btn.animate([{boxShadow:'0 0 16px rgba(51,204,255,0.35)'},{boxShadow:'0 0 34px rgba(51,204,255,0.7)'},{boxShadow:'0 0 16px rgba(51,204,255,0.35)'}],{duration:300});
+                } 
+                // Third click: play long kiss again
+                else if(kissCount === 3){
+                    try{ long.currentTime = 0; long.play(); }catch(e){}
+                    btn.animate([{boxShadow:'0 0 16px rgba(51,204,255,0.35)'},{boxShadow:'0 0 34px rgba(51,204,255,0.7)'},{boxShadow:'0 0 16px rgba(51,204,255,0.35)'}],{duration:300});
+                } 
+                // Fourth click: change text and play nothing
+                else if(kissCount === 4){
+                    btn.innerText = "alright enough now come ask me if you want more";
+                    btn.animate([{transform:'scale(1)'},{transform:'scale(0.95)'},{transform:'scale(1)'}],{duration:300});
+                }
+                // Any further clicks: do nothing
+                else {
+                    return;
                 }
             });
         }
