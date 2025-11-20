@@ -23,13 +23,13 @@
             background-image: radial-gradient(#ffb7b2 1px, transparent 1px);
             background-size: 20px 20px;
             height: 100vh;
-            overflow: hidden; /* Prevents scrolling on the intro screen */
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* --- The Intro Screen --- */
+        /* Intro Screen */
         #intro-screen {
             text-align: center;
             z-index: 10;
@@ -62,13 +62,7 @@
             background: var(--secondary-color);
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 117, 140, 0.6); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- The Letter Section (Hidden initially) --- */
+        /* Letter Section */
         #letter-container {
             display: none;
             position: fixed;
@@ -76,8 +70,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            overflow-y: auto; /* Allows scrolling for long messages */
+            background: rgba(255, 255, 255, 0.95);
+            overflow-y: auto;
             opacity: 0;
             transition: opacity 1s ease-in;
         }
@@ -94,17 +88,14 @@
             color: var(--text-color);
         }
 
-        /* Tape effect */
         .tape {
             background-color: rgba(255, 255, 255, 0.6);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             width: 120px;
             height: 35px;
             position: absolute;
             top: -15px;
             left: 50%;
             transform: translateX(-50%) rotate(-2deg);
-            z-index: 2;
             border: 1px solid #e0e0e0;
         }
 
@@ -114,14 +105,15 @@
             background-color: #eee;
             border-radius: 8px;
             margin-bottom: 25px;
-            background-image: url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'); /* Replace this URL! */
+            /* REPLACE WITH YOUR IMAGE URL BELOW */
+            background-image: url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
             background-size: cover;
             background-position: center;
         }
 
         .message-body {
             font-size: 1.1rem;
-            white-space: pre-wrap; /* Preserves your paragraphs */
+            white-space: pre-wrap;
         }
 
         .signature {
@@ -130,6 +122,62 @@
             margin-top: 30px;
             text-align: right;
             color: var(--secondary-color);
+        }
+
+        /* --- Audio Section Styles --- */
+        .audio-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px dashed #ffccd5;
+            text-align: center;
+        }
+
+        .audio-btn {
+            background: white;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .playing-indicator {
+            color: var(--secondary-color);
+            font-style: italic;
+            font-weight: 500;
+            animation: fadeText 2s infinite;
+        }
+
+        /* Custom Audio Player Styling */
+        audio {
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 30px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeText {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
 
     </style>
@@ -146,76 +194,128 @@
     <div id="letter-container">
         <div class="paper">
             <div class="tape"></div>
-            
             <div class="photo-placeholder"></div> 
 
             <div class="message-body">
-My Dearest [Name],
+My Dearest Courtney,
 
 Happy Birthday! 
 
-I’m writing this because sometimes saying things out loud doesn't quite capture everything I feel. 
+I’m writing this because sometimes saying things out loud doesn't quite capture everything I feel... 
 
-From the moment we met... [Your long message continues here. The code will automatically handle the length and let her scroll comfortably.]
+Happy birthday, my favourite person in this world!!!
+eighteen finally legal enough to make even bigger decisions(dw ill be there to support you) you have become such a special part of my life that even the distance feels smaller when i think of you bean bag.
+hope this year gives you everything you have been wishing for and maybe a little more than that and your every problem gets solved so my princess always stays happy like she should
+enjoy your best birthday ever eat, dance, make a mess have the time of your life 
+i wish i could be there to steal your cake and celebrate with you i mean i will do it some day but you have wait for that day 
+have fun my oreooooooooooooo I would eat you instead of the cake because you are more delicious than anything
+AND dont go growing up too fast though… bc i still need someone to bully me occasionally 
+happy birthday Courtney stay the same dumbass you always have been to me or try to be more smarter ( i dont think you can be that) and consider being a little more kind after bullying me(highly appreciated) and also consider being a little less scary because sometimes you scare me a lott
+i hope you have a good life ahead you do deserve a good one actually and get everything you want in your life andddddd
+ilovee youuuuuuuu sooo much my small beaver(that is slowly getting bigger) have the best day of your life I mean everyday should be best but yk today should be the bestesttt
+happy birthdayyyyy my princess
 
-I love you more than code can express.
+
 
 </div>
-            
+
             <div class="signature">
                 With love,<br>
-                [Your Name]
+                Ashish
+            </div>
+
+            <div class="audio-section">
+                
+                <audio id="voice-player" src="voice-message.mp3"></audio>
+
+                <div id="state-initial">
+                    <p style="font-size: 0.9rem; color: #888; margin-bottom: 10px;">I recorded this for you...</p>
+                    <button class="audio-btn" onclick="playFirstTime()">
+                        <span>▶</span> Wanna listen with my voice?
+                    </button>
+                </div>
+
+                <div id="state-playing" class="hidden">
+                    <p class="playing-indicator">🎙️ Playing voice message...</p>
+                </div>
+
+                <div id="state-finished" class="hidden">
+                    <p style="font-size: 0.9rem; color: #888; margin-bottom: 10px;">Did you catch all of that?</p>
+                    <button class="audio-btn" onclick="enableReplay()">
+                        <span>↺</span> Wanna hear again?
+                    </button>
+                </div>
+
+                <div id="state-replay" class="hidden">
+                    <p style="font-size: 0.9rem; color: #888;">You can scroll to any part now:</p>
+                </div>
+
             </div>
         </div>
     </div>
 
     <script>
+        // -- Intro Logic --
         function openLetter() {
-            // 1. Hide the intro
             const intro = document.getElementById('intro-screen');
             intro.style.opacity = '0';
-            
             setTimeout(() => {
                 intro.style.display = 'none';
-                
-                // 2. Show the letter
                 const letter = document.getElementById('letter-container');
                 letter.style.display = 'block';
-                
-                // Small delay to allow the display change to render before opacity transition
                 setTimeout(() => {
                     letter.style.opacity = '1';
-                    
-                    // 3. Launch Confetti!
                     launchConfetti();
                 }, 50);
-                
             }, 1000);
         }
 
+        // -- Audio Logic --
+        const audio = document.getElementById('voice-player');
+        const stateInitial = document.getElementById('state-initial');
+        const statePlaying = document.getElementById('state-playing');
+        const stateFinished = document.getElementById('state-finished');
+        const stateReplay = document.getElementById('state-replay');
+
+        function playFirstTime() {
+            // Hide initial button, show "Playing..." text
+            stateInitial.classList.add('hidden');
+            statePlaying.classList.remove('hidden');
+            
+            // Play audio without controls
+            audio.play();
+
+            // Listen for when it ends
+            audio.onended = function() {
+                statePlaying.classList.add('hidden');
+                stateFinished.classList.remove('hidden');
+            };
+        }
+
+        function enableReplay() {
+            // Hide finished button
+            stateFinished.classList.add('hidden');
+            
+            // Show Replay section
+            stateReplay.classList.remove('hidden');
+            
+            // Move the audio element into the replay div so it's visible
+            stateReplay.appendChild(audio);
+            
+            // Enable controls (timeline) and play
+            audio.controls = true;
+            audio.currentTime = 0; // Start from beginning
+            audio.play();
+        }
+
+        // -- Confetti --
         function launchConfetti() {
             var duration = 3000;
             var end = Date.now() + duration;
-
             (function frame() {
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#ff7eb3', '#ff758c', '#ffffff']
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#ff7eb3', '#ff758c', '#ffffff']
-                });
-
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff7eb3', '#ff758c', '#ffffff'] });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff7eb3', '#ff758c', '#ffffff'] });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
             }());
         }
     </script>
