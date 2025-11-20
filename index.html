@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy Birthday!</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <title>Happy Birthday Courtney!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            --primary-color: #ff7eb3;
-            --secondary-color: #ff758c;
-            --text-color: #4a4a4a;
-            --bg-color: #fff0f5;
+            --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --card-bg: #1a1a2e;
+            --text-color: #e0e0e0;
+            --highlight-color: #ff00cc; /* Neon Pink */
+            --accent-color: #33ccff; /* Neon Blue */
         }
 
         body {
             margin: 0;
             padding: 0;
             font-family: 'Poppins', sans-serif;
-            background: var(--bg-color);
-            background-image: radial-gradient(#ffb7b2 1px, transparent 1px);
-            background-size: 20px 20px;
+            background: var(--bg-gradient);
+            color: var(--text-color);
             height: 100vh;
             overflow: hidden;
             display: flex;
@@ -29,48 +29,73 @@
             align-items: center;
         }
 
-        /* Intro Screen */
+        /* --- Floating Stars Background Animation --- */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            z-index: -1;
+            animation: stars 60s linear infinite;
+        }
+
+        @keyframes stars {
+            from {transform: translateY(0);}
+            to {transform: translateY(-550px);}
+        }
+
+        /* --- Intro Screen --- */
         #intro-screen {
             text-align: center;
             z-index: 10;
             transition: opacity 1s ease-out;
+            padding: 20px;
         }
 
         h1 {
             font-family: 'Dancing Script', cursive;
-            font-size: 4rem;
-            color: var(--secondary-color);
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-size: 3.5rem;
+            color: var(--highlight-color);
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 0, 204, 0.6);
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #b3b3b3;
         }
 
         .heart-btn {
-            background: var(--primary-color);
+            background: linear-gradient(45deg, var(--highlight-color), #9900ff);
             color: white;
             border: none;
             padding: 15px 40px;
             font-size: 1.2rem;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 117, 140, 0.4);
+            box-shadow: 0 0 20px rgba(255, 0, 204, 0.4);
             transition: transform 0.2s;
-            animation: pulse 1.5s infinite;
+            animation: pulse 2s infinite;
+            margin-top: 20px;
+            font-weight: 600;
         }
 
         .heart-btn:hover {
-            transform: scale(1.05);
-            background: var(--secondary-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 0, 204, 0.8);
         }
 
-        /* Letter Section */
+        /* --- Letter Section --- */
         #letter-container {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 12, 41, 0.95); /* Dark overlay */
             overflow-y: auto;
             opacity: 0;
             transition: opacity 1s ease-in;
@@ -78,117 +103,167 @@
 
         .paper {
             max-width: 600px;
-            margin: 50px auto;
-            background: #fff;
+            margin: 80px auto 50px auto; /* Top margin increased for audio player space */
+            background: var(--card-bg);
             padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-radius: 5px;
+            border-radius: 15px;
             position: relative;
             line-height: 1.8;
-            color: var(--text-color);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
         }
 
+        /* Neon Tape Effect */
         .tape {
-            background-color: rgba(255, 255, 255, 0.6);
-            width: 120px;
-            height: 35px;
+            background: linear-gradient(45deg, var(--accent-color), #00ffcc);
+            width: 120px; height: 30px;
             position: absolute;
-            top: -15px;
-            left: 50%;
+            top: -15px; left: 50%;
             transform: translateX(-50%) rotate(-2deg);
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 0 15px rgba(51, 204, 255, 0.6);
+            opacity: 0.8;
         }
 
         .photo-placeholder {
             width: 100%;
-            height: 300px;
-            background-color: #eee;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            /* REPLACE WITH YOUR IMAGE URL BELOW */
+            height: 320px;
+            background-color: #2a2a40;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            /* REPLACE IMAGE URL BELOW */
             background-image: url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
             background-size: cover;
             background-position: center;
+            border: 3px solid rgba(255,255,255,0.1);
         }
 
+        /* --- Message Formatting --- */
         .message-body {
             font-size: 1.1rem;
-            white-space: pre-wrap;
+            color: #ddd;
+        }
+
+        .message-body p {
+            margin-bottom: 1.5em; /* Spacing between paragraphs */
+            color: #ddd;
+        }
+
+        .highlight {
+            color: var(--highlight-color);
+            font-weight: 600;
+        }
+
+        .highlight-blue {
+            color: var(--accent-color);
+            font-weight: 600;
         }
 
         .signature {
             font-family: 'Dancing Script', cursive;
-            font-size: 2rem;
-            margin-top: 30px;
+            font-size: 2.2rem;
+            margin-top: 40px;
             text-align: right;
-            color: var(--secondary-color);
+            color: var(--highlight-color);
+            text-shadow: 0 0 5px rgba(255, 0, 204, 0.4);
         }
 
-        /* --- Audio Section Styles --- */
-        .audio-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px dashed #ffccd5;
-            text-align: center;
+        /* --- Top Right Floating Audio Player --- */
+        #audio-floater {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 50px;
+            border: 1px solid var(--highlight-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            display: none; /* Hidden until letter opens */
+            transition: all 0.3s ease;
+            max-width: 90vw; /* Prevents overflow on small mobile screens */
         }
 
         .audio-btn {
-            background: white;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 1rem;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 8px;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
         }
-
-        .audio-btn:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .hidden {
-            display: none;
+        
+        .audio-btn span {
+            font-size: 1.2rem;
+            color: var(--highlight-color);
         }
 
         .playing-indicator {
-            color: var(--secondary-color);
-            font-style: italic;
-            font-weight: 500;
-            animation: fadeText 2s infinite;
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: pulseText 1.5s infinite;
         }
 
-        /* Custom Audio Player Styling */
+        /* Audio Timeline Styling */
         audio {
-            width: 100%;
-            margin-top: 10px;
-            border-radius: 30px;
+            height: 30px;
+            width: 200px;
+            filter: invert(1); /* Makes default player look dark/white */
         }
+
+        .hidden { display: none !important; }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 0, 204, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 0, 204, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 0, 204, 0); }
         }
 
-        @keyframes fadeText {
-            0%, 100% { opacity: 0.6; }
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.7; }
             50% { opacity: 1; }
         }
-
     </style>
 </head>
 <body>
 
     <div id="intro-screen">
-        <h1>Happy Birthday, [Her Name]!</h1>
-        <p>I have something special to tell you...</p>
-        <br>
+        <h1>Happy Birthday,<br>My Princess! 👑</h1>
+        <p>I have something special for you...</p>
         <button class="heart-btn" onclick="openLetter()">💌 Open Message</button>
+    </div>
+
+    <div id="audio-floater">
+        <audio id="voice-player" src="voice-message.mp3"></audio>
+
+        <div id="state-initial">
+            <button class="audio-btn" onclick="playFirstTime()">
+                <span>▶</span> Wanna listen with my voice?
+            </button>
+        </div>
+
+        <div id="state-playing" class="hidden">
+            <div class="playing-indicator">
+                <span>🎙️</span> Listening...
+            </div>
+        </div>
+
+        <div id="state-finished" class="hidden">
+            <button class="audio-btn" onclick="enableReplay()">
+                <span>↺</span> Wanna hear again?
+            </button>
+        </div>
+
+        <div id="state-replay" class="hidden">
+            </div>
     </div>
 
     <div id="letter-container">
@@ -197,59 +272,38 @@
             <div class="photo-placeholder"></div> 
 
             <div class="message-body">
-My Dearest Courtney,
+                <p><strong>My Dearest Courtney,</strong></p>
 
-Happy Birthday! 
+                <p>Happy Birthday! 🎉</p>
 
-I’m writing this because sometimes saying things out loud doesn't quite capture everything I feel... 
+                <p>I’m writing this because sometimes saying things out loud doesn't quite capture everything I feel...</p>
 
-Happy birthday, my favourite person in this world!!!
-eighteen finally legal enough to make even bigger decisions(dw ill be there to support you) you have become such a special part of my life that even the distance feels smaller when i think of you bean bag.
-hope this year gives you everything you have been wishing for and maybe a little more than that and your every problem gets solved so my princess always stays happy like she should
-enjoy your best birthday ever eat, dance, make a mess have the time of your life 
-i wish i could be there to steal your cake and celebrate with you i mean i will do it some day but you have wait for that day 
-have fun my oreooooooooooooo I would eat you instead of the cake because you are more delicious than anything
-AND dont go growing up too fast though… bc i still need someone to bully me occasionally 
-happy birthday Courtney stay the same dumbass you always have been to me or try to be more smarter ( i dont think you can be that) and consider being a little more kind after bullying me(highly appreciated) and also consider being a little less scary because sometimes you scare me a lott
-i hope you have a good life ahead you do deserve a good one actually and get everything you want in your life andddddd
-ilovee youuuuuuuu sooo much my small beaver(that is slowly getting bigger) have the best day of your life I mean everyday should be best but yk today should be the bestesttt
-happy birthdayyyyy my princess
+                <p>Happy birthday, <span class="highlight">my favourite person in this world!!!</span></p>
 
+                <p>Eighteen... finally legal enough to make even bigger decisions (dw ill be there to support you). You have become such a special part of my life that even the distance feels smaller when i think of you bean bag.</p>
 
+                <p>Hope this year gives you everything you have been wishing for and maybe a little more than that. I hope every problem gets solved so my princess always stays happy like she should.</p>
 
-</div>
+                <p>Enjoy your <span class="highlight-blue">best birthday ever</span>. Eat, dance, make a mess, have the time of your life! 💃🍰</p>
+
+                <p>I wish i could be there to steal your cake and celebrate with you. I mean, I will do it some day, but you have to wait for that day.</p>
+
+                <p>Have fun my <span class="highlight">OREOOOOOOOOOOOOO</span>. I would eat you instead of the cake because you are more delicious than anything.</p>
+
+                <p><strong>AND don't go growing up too fast though…</strong> bc i still need someone to bully me occasionally.</p>
+
+                <p>Happy birthday Courtney. Stay the same dumbass you always have been to me (or try to be smarter, though I don't think you can be that). Consider being a little more kind after bullying me (highly appreciated) and also consider being a little less scary because sometimes you scare me a lott.</p>
+
+                <p>I hope you have a good life ahead, you do deserve a good one actually and get everything you want in your life andddddd...</p>
+
+                <p>I lovee youuuuuuuu sooo much my <span class="highlight">small beaver</span> (that is slowly getting bigger). Have the best day of your life. I mean everyday should be best but yk today should be the <strong>bestesttt</strong>.</p>
+
+                <p>Happy birthdayyyyy my princess ❤️</p>
+            </div>
 
             <div class="signature">
                 With love,<br>
                 Ashish
-            </div>
-
-            <div class="audio-section">
-                
-                <audio id="voice-player" src="voice-message.mp3"></audio>
-
-                <div id="state-initial">
-                    <p style="font-size: 0.9rem; color: #888; margin-bottom: 10px;">I recorded this for you...</p>
-                    <button class="audio-btn" onclick="playFirstTime()">
-                        <span>▶</span> Wanna listen with my voice?
-                    </button>
-                </div>
-
-                <div id="state-playing" class="hidden">
-                    <p class="playing-indicator">🎙️ Playing voice message...</p>
-                </div>
-
-                <div id="state-finished" class="hidden">
-                    <p style="font-size: 0.9rem; color: #888; margin-bottom: 10px;">Did you catch all of that?</p>
-                    <button class="audio-btn" onclick="enableReplay()">
-                        <span>↺</span> Wanna hear again?
-                    </button>
-                </div>
-
-                <div id="state-replay" class="hidden">
-                    <p style="font-size: 0.9rem; color: #888;">You can scroll to any part now:</p>
-                </div>
-
             </div>
         </div>
     </div>
@@ -258,11 +312,19 @@ happy birthdayyyyy my princess
         // -- Intro Logic --
         function openLetter() {
             const intro = document.getElementById('intro-screen');
+            const floater = document.getElementById('audio-floater');
+            
             intro.style.opacity = '0';
+            
             setTimeout(() => {
                 intro.style.display = 'none';
+                
                 const letter = document.getElementById('letter-container');
                 letter.style.display = 'block';
+                
+                // Show Audio Floater
+                floater.style.display = 'block';
+
                 setTimeout(() => {
                     letter.style.opacity = '1';
                     launchConfetti();
@@ -278,14 +340,11 @@ happy birthdayyyyy my princess
         const stateReplay = document.getElementById('state-replay');
 
         function playFirstTime() {
-            // Hide initial button, show "Playing..." text
             stateInitial.classList.add('hidden');
             statePlaying.classList.remove('hidden');
             
-            // Play audio without controls
             audio.play();
 
-            // Listen for when it ends
             audio.onended = function() {
                 statePlaying.classList.add('hidden');
                 stateFinished.classList.remove('hidden');
@@ -293,18 +352,13 @@ happy birthdayyyyy my princess
         }
 
         function enableReplay() {
-            // Hide finished button
             stateFinished.classList.add('hidden');
-            
-            // Show Replay section
             stateReplay.classList.remove('hidden');
             
-            // Move the audio element into the replay div so it's visible
+            // Move audio element to show controls
             stateReplay.appendChild(audio);
-            
-            // Enable controls (timeline) and play
             audio.controls = true;
-            audio.currentTime = 0; // Start from beginning
+            audio.currentTime = 0;
             audio.play();
         }
 
@@ -313,8 +367,8 @@ happy birthdayyyyy my princess
             var duration = 3000;
             var end = Date.now() + duration;
             (function frame() {
-                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff7eb3', '#ff758c', '#ffffff'] });
-                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff7eb3', '#ff758c', '#ffffff'] });
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff00cc', '#33ccff', '#ffffff'] });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff00cc', '#33ccff', '#ffffff'] });
                 if (Date.now() < end) { requestAnimationFrame(frame); }
             }());
         }
