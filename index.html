@@ -213,6 +213,7 @@
             border-radius: 15px 15px 0 0;
             box-shadow: inset -15px 0 25px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.5);
             z-index: 2; overflow: hidden;
+            transition: transform .6s ease, opacity .6s ease;
         }
         
         /* Icing */
@@ -228,8 +229,6 @@
         /* Candles - CORRECTED POSITION */
         .candles-container {
             position: absolute;
-            /* Relative to container top (200px height). Cake body starts at 70px from top. */
-            /* Candles are 50px high. top: 30px places them with 10px overlap into icing. */
             top: 35px; 
             left: 50%; transform: translateX(-50%);
             width: 140px; height: 50px; z-index: 5;
@@ -272,18 +271,28 @@
             position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%);
             width: 280px; height: 20px; background: #f0f0f0; border-radius: 50%;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5); z-index: 1;
+            transition: opacity .5s;
         }
 
         /* Dynamic Cut "Slice" Style */
         .cake-cut {
             position: absolute;
             width: 45px; height: 45px;
-            /* Create a look of layers inside */
             background: radial-gradient(circle, var(--cake-filling) 30%, var(--cake-sponge) 31%);
             border-radius: 50%;
             box-shadow: inset 3px 3px 8px rgba(0,0,0,0.3);
             z-index: 4; pointer-events: none;
             transform: translate(-50%, -50%);
+            transition: transform .9s ease, opacity .9s ease;
+        }
+
+        /* Crumbs (added for visual feedback) */
+        .crumb {
+            position: absolute; width: 10px; height: 10px; background: var(--cake-sponge);
+            border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            opacity: 0; pointer-events: none; transform: translate(-50%,-50%) scale(0.6);
+            transition: opacity .6s, transform .9s;
+            z-index: 4;
         }
 
         .hidden-message {
@@ -362,7 +371,8 @@
                         </div>
                     </div>
                     
-                    <div class="plate"></div>
+                    <!-- added id so script can target plate -->
+                    <div class="plate" id="plate"></div>
                 </div>
                 
                 <div class="hidden-message" id="birthday-wish">Happy Birthday My Love! ❤️<br>You're the sweetest thing here!</div>
@@ -479,66 +489,180 @@
         }
         window.addEventListener('scroll', checkScroll);
 
-        // --- 2. Cake Interaction Logic (REFINED) ---
+        // --- 2. IMPROVED Cake Interaction Logic (integrated) ---
+        // Behavior:
+        //  - Candles must be blown (click flames) to enable cutting.
+        //  - The first cut triggers the "part popper" confetti burst only once (localized).
+        //  - Each subsequent cut reduces the cake visually (scaleX) until it finishes.
+        //  - When cake is finished, the cake & plate are removed and the hidden message appears.
         let candlesBlown = 0;
         const totalCandles = 3;
         let cuttingEnabled = false;
+        let cakeFinished = false;
+        let firstCutDone = false;
+        let remainingCake = 1.0; // 1.0 = full cake. Each cut reduces this fraction.
+        let cakeBodyClickAttached = false;
 
-        function blowCandle(flameElement) {
-            if(flameElement.classList.contains('out')) return;
+        function blowCandle(flameElement){
+            if(!flameElement || flameElement.classList.contains('out')) return;
             flameElement.classList.add('out');
             const smoke = flameElement.nextElementSibling;
-            if(smoke) smoke.style.animation = "smokeRise 1s ease-out forwards";
-            
+            if(smoke) {
+                smoke.style.animation = "smokeRise 1s ease-out forwards";
+            }
             candlesBlown++;
-            if(candlesBlown === totalCandles) {
-                setTimeout(() => {
-                    const instruction = document.getElementById('cake-instruction');
-                    instruction.style.opacity = 0;
-                    setTimeout(() => {
-                        instruction.innerHTML = "Now <span class='highlight'>Cut the Cake</span> (Click anywhere on it!)";
-                        instruction.style.opacity = 1;
+            if(candlesBlown >= totalCandles){
+                // small delay to allow last flame to disappear
+                setTimeout(()=> {
+                    const instr = document.getElementById('cake-instruction');
+                    instr.style.opacity = 0;
+                    setTimeout(()=> {
+                        instr.innerHTML = "Now <span style='color:var(--neon-pink);font-weight:700'>Cut the Cake</span> — Click anywhere on it!";
+                        instr.style.opacity = 1;
                         enableCakeCutting();
-                    }, 500);
-                }, 500);
+                    }, 300);
+                }, 350);
             }
         }
 
-        function enableCakeCutting() {
+        function enableCakeCutting(){
             const cakeContainer = document.getElementById('cake-container');
             const cakeBody = document.getElementById('cake-body');
-            
-            // Enable Knife Cursor on the whole container
+            if(!cakeBody || cakeFinished) return;
             cakeContainer.classList.add('knife-cursor');
             cuttingEnabled = true;
 
-            cakeBody.addEventListener('click', function(e) {
-                if(!cuttingEnabled) return;
+            // attach only once
+            if(cakeBodyClickAttached) return;
+            cakeBodyClickAttached = true;
 
-                // Get click coordinates relative to the cake body
+            cakeBody.addEventListener('click', function(e){
+                if(!cuttingEnabled || cakeFinished) return;
+
+                // coordinates relative to cake body
                 const rect = cakeBody.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
+                const relX = (x / rect.width);
 
-                // Create a "cut" div
-                const cut = document.createElement('div');
-                cut.className = 'cake-cut';
-                cut.style.left = x + 'px';
-                cut.style.top = y + 'px';
-                
-                // Random rotation for organic look
-                const rot = Math.random() * 360;
-                cut.style.transform = `translate(-50%, -50%) rotate(${rot}deg)`;
+                // If this is the first cut, do a celebratory burst/pop
+                if(!firstCutDone){
+                    firstCutDone = true;
+                    // localized confetti burst where clicked
+                    popperBurst(relX);
+                }
 
-                cakeBody.appendChild(cut);
+                performCutAt(x, y, rect);
 
-                // Celebration
-                launchConfetti();
-                
-                // Show Message
-                document.getElementById('birthday-wish').classList.add('shown');
-                document.getElementById('cake-instruction').innerHTML = "Yay! Happy Birthday Love! ❤️";
+                // reduce remaining cake by a randomized chunk
+                const minCut = 0.18, maxCut = 0.32;
+                const cutAmount = Math.random() * (maxCut - minCut) + minCut;
+                remainingCake = Math.max(0, +(remainingCake - cutAmount).toFixed(3));
+
+                // animate cake shrinking horizontally (scaleX)
+                const minScale = 0.02;
+                const scale = Math.max(minScale, remainingCake);
+                cakeBody.style.transform = `translateX(-50%) scaleX(${scale})`;
+
+                // final state
+                if(remainingCake <= 0.03){
+                    finishCake();
+                }
             });
+        }
+
+        function performCutAt(x, y, rect){
+            const cakeBody = document.getElementById('cake-body');
+
+            // Create a visible slice (cut) element which floats away
+            const cut = document.createElement('div');
+            cut.className = 'cake-cut';
+            cut.style.left = x + 'px';
+            cut.style.top = y + 'px';
+            const rot = (Math.random() * 60) - 30;
+            cut.style.transform = `translate(-50%,-50%) rotate(${rot}deg) scale(${0.9 + Math.random()*0.6})`;
+            cakeBody.appendChild(cut);
+
+            // Create tiny crumbs for visual feedback
+            for(let i=0;i<6;i++){
+                const crumb = document.createElement('div');
+                crumb.className = 'crumb';
+                const cx = x + (Math.random()*80 - 40);
+                const cy = y + (Math.random()*40 - 20);
+                crumb.style.left = cx + 'px';
+                crumb.style.top = cy + 'px';
+                cakeBody.appendChild(crumb);
+                // anim in
+                setTimeout(()=>{ crumb.style.opacity = 1; crumb.style.transform = `translate(-50%,-50%) scale(${0.9 + Math.random()*0.8})`; }, 50);
+                // animate outward and fade
+                setTimeout(()=> {
+                    crumb.style.transform = `translate(calc(-50% + ${Math.random()*120-60}px), calc(-50% - ${60 + Math.random()*40}px)) scale(0.2)`;
+                    crumb.style.opacity = 0;
+                    setTimeout(()=> crumb.remove(), 900);
+                }, 400 + Math.random()*250);
+            }
+
+            // float the cut piece away and remove it
+            setTimeout(()=>{
+                cut.style.transform += ' translateY(-120px) rotate(' + (rot + 20) + 'deg) scale(0.6)';
+                cut.style.opacity = 0;
+                setTimeout(()=>{ try{ cut.remove(); }catch(e){} }, 900);
+            }, 550);
+        }
+
+        function popperBurst(relX){
+            // localized confetti from canvas-confetti (only first cut)
+            try{
+                confetti({
+                    particleCount: 40,
+                    spread: 90,
+                    origin: { x: Math.min(0.98, Math.max(0.02, relX)) , y: 0.6 },
+                    colors: ['#ff00cc','#33ccff','#ffffff']
+                });
+                // small follow-up burst
+                setTimeout(()=> {
+                    confetti({
+                        particleCount: 24,
+                        spread: 60,
+                        origin: { x: Math.min(0.98, Math.max(0.02, relX)), y: 0.6 },
+                        colors: ['#ff00cc','#33ccff']
+                    });
+                }, 220);
+            }catch(e){}
+        }
+
+        function finishCake(){
+            if(cakeFinished) return;
+            cakeFinished = true;
+            cuttingEnabled = false;
+            const cakeBody = document.getElementById('cake-body');
+            const plate = document.getElementById('plate');
+            const instr = document.getElementById('cake-instruction');
+            instr.style.opacity = 0;
+            setTimeout(()=> {
+                instr.innerHTML = "All gone! Sweet Tooth satisfied ❤️";
+                instr.style.opacity = 1;
+            }, 300);
+
+            // pop a gentle confetti to celebrate final finish (different from "part poppers")
+            try{
+                confetti({
+                    particleCount: 60,
+                    spread: 140,
+                    origin: { x: 0.5, y: 0.4 },
+                    scalar: 1.0,
+                    colors: ['#ff00cc','#33ccff','#ffffff']
+                });
+            }catch(e){}
+
+            // Animate cake fade & plate down
+            cakeBody.style.transition = 'transform .9s ease, opacity .9s ease';
+            cakeBody.style.opacity = 0;
+            plate.style.opacity = 0;
+            setTimeout(()=> {
+                try{ cakeBody.remove(); plate.remove(); }catch(e){}
+                document.getElementById('birthday-wish').classList.add('shown');
+            }, 950);
         }
 
         const supportedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
