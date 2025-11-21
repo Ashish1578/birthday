@@ -72,11 +72,11 @@
             animation: pulseBtn 2s infinite;
         }
 
-        /* NEW: Intro GIF Style */
+        /* Intro GIF Style */
         .intro-gif {
             margin-top: 30px;
-            max-width: 250px; /* Max size */
-            width: 60%;      /* Responsive size */
+            max-width: 250px; 
+            width: 60%;      
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(255, 0, 204, 0.3);
             opacity: 0.9;
@@ -119,17 +119,8 @@
             line-height: 1.6; 
             color: #e0e0e0;
             position: relative;
-            z-index: 2; /* Text sits above background but handled carefully with padding */
-            
-            /* CRITICAL: Padding to prevent text overlapping the image */
-            padding-right: 140px; 
-        }
-
-        /* Mobile adjustment for message text */
-        @media (max-width: 600px) {
-            .message-text {
-                padding-right: 90px; /* Smaller padding for mobile */
-            }
+            z-index: 2; 
+            /* Padding removed so text fills the width */
         }
 
         .message-text p { margin-bottom: 20px; }
@@ -380,15 +371,19 @@
         .peeker-left { left: -10px; transform: rotate(10deg); }
         .peeker-fixed:hover { transform: translateY(-30px) scale(1.1) rotate(0deg) !important; }
 
-        /* 2. INLINE LETTER PEEKER (New Right Side) */
+        /* 2. FLOATING LETTER PEEKER (Updated) */
         .peeker-paper-right {
-            position: absolute;
-            top: 20px;  /* Aligns with the first line of text */
-            right: -20px; /* Negative margin to make it look like it's peeking from the edge */
-            width: 130px; /* Size of the character */
-            z-index: 1; /* Behind text if text was over it, but we used padding to avoid overlap */
+            float: right; /* Allows text to wrap around it */
+            width: 130px; 
+            margin-top: -15px; /* Pull up slightly */
+            margin-right: -25px; /* Pull right to edge */
+            margin-left: 15px; /* Push text away */
+            margin-bottom: 10px;
             transform: rotate(-10deg);
             filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+            position: relative;
+            z-index: 5;
+            shape-outside: circle(50%);
         }
 
         /* Mobile Adjustments */
@@ -397,9 +392,8 @@
             .peeker-fixed.show-peek { bottom: -5px; }
             
             .peeker-paper-right {
-                width: 80px;
-                top: 15px;
-                right: -10px;
+                width: 90px;
+                margin-right: -15px;
             }
         }
 
@@ -417,7 +411,7 @@
 
     <div id="intro-screen">
         <h1 class="title">Happy Birthday<br>my Princess!</h1>
-        <p style="color: #ccc; margin-top: 10px;">Tap to see something i wrote for you</p>
+        <p style="color: #ccc; margin-top: 10px;">Tap to start see something i wrote for you</p>
         <button class="start-btn" onclick="startExperience()">
             <i class="fas fa-heart"></i> Open Now
         </button>
@@ -432,11 +426,10 @@
         <div class="container">
 
             <div class="letter-paper reveal">
-                <!-- NEW: RIGHT PEEKER MOVED INSIDE THE LETTER -->
-                <!-- Positioned absolute to top right, text padded to avoid overlap -->
-                <img src="peeker-right.png" class="peeker-paper-right" alt="Peeking Character">
-
                 <div class="message-text">
+                    <!-- MOVED: RIGHT PEEKER INSIDE THE TEXT CONTAINER FOR WRAPPING -->
+                    <img src="peeker-right.png" class="peeker-paper-right" alt="Peeking Character">
+                    
                     <p><strong>My Dearest Courtney,</strong></p>
                     <p>Happy Birthday!!!!</p>
                     <p>I'm writing this because sometimes saying things out loud doesn't quite capture everything I feel...</p>
