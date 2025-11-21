@@ -72,6 +72,16 @@
             animation: pulseBtn 2s infinite;
         }
 
+        /* NEW: Intro GIF Style */
+        .intro-gif {
+            margin-top: 30px;
+            max-width: 250px; /* Max size */
+            width: 60%;      /* Responsive size */
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 0, 204, 0.3);
+            opacity: 0.9;
+        }
+
         /* Main Content & Scroll Animation Classes */
         #main-content { display: none; opacity: 0; transition: opacity 1s; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
@@ -411,6 +421,8 @@
         <button class="start-btn" onclick="startExperience()">
             <i class="fas fa-heart"></i> Open Now
         </button>
+        <!-- ADDED GIF HERE -->
+        <img src="intro.gif" class="intro-gif" alt="Cute GIF">
     </div>
 
     <!-- FIXED LEFT PEEKER (Bottom Left of Screen) -->
