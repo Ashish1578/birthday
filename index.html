@@ -279,7 +279,7 @@
         }
 
         .lightbox-nav {
-            position: fixed; /* Changed from absolute to fixed */
+            position: fixed;
             top: 50%;
             transform: translateY(-50%);
             background: rgba(255, 0, 204, 0.8);
@@ -438,7 +438,6 @@
         @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 
-    <!-- ADDED: overrides, typewriter, floating notes and kiss button styles (keeps original code intact) -->
     <style>
         /* Override white frames with transparent + glow */
         .chat-frame { background: transparent; padding: 0; }
@@ -466,6 +465,45 @@
         /* ensure our new elements reveal nicely */
         .typewriter-wrap, .floating-notes, .kiss-section { opacity: 0; transform: translateY(20px); transition: all .6s ease; }
         .typewriter-wrap.active, .floating-notes.active, .kiss-section.active { opacity: 1; transform: translateY(0); }
+
+        /* --- PEEKING CHARACTERS STYLE --- */
+        .peeker {
+            position: fixed;
+            bottom: -100%; /* Start hidden */
+            z-index: 998; /* Below music player (1000), above bg */
+            width: 150px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), bottom 1s ease;
+            filter: drop-shadow(0 0 15px rgba(0,0,0,0.5));
+            cursor: pointer;
+        }
+
+        .peeker.show-peek {
+            bottom: -10px;
+        }
+
+        .peeker-left {
+            left: -10px;
+            transform: rotate(10deg);
+        }
+        
+        .peeker-right {
+            right: -10px;
+            transform: rotate(-10deg);
+        }
+
+        .peeker:hover {
+            transform: translateY(-30px) scale(1.1) rotate(0deg) !important;
+        }
+
+        @media (max-width: 600px) {
+            .peeker {
+                width: 100px;
+                bottom: -100%;
+            }
+            .peeker.show-peek {
+                bottom: -5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -479,6 +517,9 @@
             <i class="fas fa-heart"></i> Open Now
         </button>
     </div>
+
+    <img src="peeker-left.png" class="peeker peeker-left" id="peeker-left" alt="Character Left">
+    <img src="peeker-right.png" class="peeker peeker-right" id="peeker-right" alt="Character Right">
 
     <div id="main-content">
         <div class="container">
@@ -513,7 +554,6 @@
                 <p style="margin-top: 15px; color: #f95656; font-size: 0.9rem;">remember this date now dumbass</p>
             </div>
 
-            <!-- CUSTOM ADDITIONS: Typewriter, Floating Notes, Kiss Button (added without removing existing code) -->
             <div class="typewriter-wrap reveal" id="typewriter-wrap">
                 <div class="typewriter-box">
                     <p id="typewriter-text"></p>
@@ -525,8 +565,6 @@
             <div class="kiss-section reveal" id="kiss-wrap" style="margin-top:18px;">
                 <button id="kiss-btn">Want Kiss?</button>
             </div>
-
-            <!-- END CUSTOM ADDITIONS -->
 
             <div class="gallery-section reveal">
                 <div class="gallery-title">Some of my favourite chats</div>
@@ -590,7 +628,6 @@
         </div>
     </div>
 
-    <!-- kiss audios (user provided names) -->
     <audio id="kiss-audio" src="kiss-short.mp3" preload="auto"></audio>
     <audio id="kiss-audio-long" src="kiss-long.mp3" preload="auto"></audio>
 
@@ -615,6 +652,8 @@
                     checkScroll();
                     // Custom features: start after main is revealed
                     safeStartCustomFeatures();
+                    // Show peeking characters
+                    showPeekers();
                 }, 50);
             }, 800);
         }
@@ -855,9 +894,23 @@
                 if (Date.now() < end) { requestAnimationFrame(frame); }
             }());
         }
+        
+        // --- 5. Peeking Characters Logic ---
+        function showPeekers() {
+            // Wait 1 second after site opens, then pop them up
+            setTimeout(() => {
+                const pLeft = document.getElementById('peeker-left');
+                const pRight = document.getElementById('peeker-right');
+                
+                if(pLeft) pLeft.classList.add('show-peek');
+                // Delay the right one slightly for a natural feel
+                setTimeout(() => {
+                    if(pRight) pRight.classList.add('show-peek');
+                }, 300);
+            }, 1000);
+        }
     </script>
 
-    <!-- ADDED SCRIPT: typewriter, floating notes and kiss logic (keeps original script above untouched) -->
     <script>
     (function(){
         // ensure we only initialize custom features once
@@ -1006,6 +1059,7 @@
             const main = document.getElementById('main-content');
             if(window.getComputedStyle(main).display !== 'none'){
                 safeStartCustomFeatures();
+                showPeekers(); // Ensure peekers show on bypass too
             }
         });
 
