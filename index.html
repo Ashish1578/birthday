@@ -407,7 +407,7 @@
 
     <div id="intro-screen">
         <h1 class="title">Happy Birthday<br>my Princess!</h1>
-        <p style="color: #ccc; margin-top: 10px;">Tap to start see something i wrote for you</p>
+        <p style="color: #ccc; margin-top: 10px;">Tap to see something i wrote for you</p>
         <button class="start-btn" onclick="startExperience()">
             <i class="fas fa-heart"></i> Open Now
         </button>
@@ -748,7 +748,10 @@
                 const style = window.getComputedStyle(main);
                 if(style.display !== 'none' && parseFloat(style.opacity) > 0){
                     clearInterval(waiter);
-                    startTypewriter();
+                    
+                    // MODIFIED: Only setting up the listener here, not starting the typing
+                    setupTypewriterScrollTrigger(); 
+                    
                     startFloatingNotes();
                     initKissButton();
                     revealCustomElements();
@@ -756,7 +759,7 @@
                 }
                 if(attempts > 40){
                     clearInterval(waiter);
-                    startTypewriter();
+                    setupTypewriterScrollTrigger();
                     startFloatingNotes();
                     initKissButton();
                     revealCustomElements();
@@ -765,6 +768,24 @@
             },50);
         }
         window.safeStartCustomFeatures = safeStartCustomFeatures;
+
+        // --- NEW: Observer to start typing only when scrolled into view ---
+        function setupTypewriterScrollTrigger() {
+            const wrap = document.getElementById('typewriter-wrap');
+            if(!wrap) return;
+
+            // Create an intersection observer to watch for the element
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        startTypewriter(); // Start typing only now
+                        observer.disconnect(); // Run once then stop watching
+                    }
+                });
+            }, { threshold: 0.4 }); // Trigger when 40% of the element is visible
+
+            observer.observe(wrap);
+        }
 
         const TYPE_TEXT = "Courtney... I love you more than you can ever imagine.";
         let twIndex = 0, twTimer = null;
@@ -832,7 +853,10 @@
         }
 
         function revealCustomElements(){
-            const wraps = ['#typewriter-wrap','#floating-notes','#kiss-wrap'];
+            // MODIFIED: Removed '#typewriter-wrap' from here so the typewriter 
+            // doesn't get forced to appear immediately. It will appear via the 
+            // standard 'checkScroll' function that runs on scroll.
+            const wraps = ['#floating-notes','#kiss-wrap'];
             wraps.forEach(sel=>{
                 const el = document.querySelector(sel);
                 if(!el) return;
