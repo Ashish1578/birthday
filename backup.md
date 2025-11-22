@@ -800,8 +800,8 @@
         </div>
     </div>
 
-    <audio id="kiss-audio" src="kiss-short.mp3" preload="auto"></audio>
-    <audio id="kiss-audio-long" src="kiss-long.mp3" preload="auto"></audio>
+    <audio id="kiss-audio" src="short-kiss.mp3" preload="auto"></audio>
+    <audio id="kiss-audio-long" src="long-kiss.mp3" preload="auto"></audio>
 
     <script>
         // --- 1. Start Experience ---
