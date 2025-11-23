@@ -105,7 +105,7 @@
         .highlight { color: var(--neon-pink); font-weight: bold; }
         .highlight-blue { color: var(--neon-blue); font-weight: bold; }
 
-        /* SPECIAL NAME ANIMATION CSS */
+        /* --- HEART ENGINE CSS --- */
         .courtney-trigger {
             display: inline-block;
             position: relative;
@@ -116,11 +116,12 @@
         }
 
         .heart-particle {
-            position: fixed; /* Fixed so it can float over other elements easily */
+            position: fixed; /* Fixed allows them to float over everything regardless of container */
             pointer-events: none;
-            z-index: 9999; /* Very high to mess with other words */
-            font-size: 12px;
+            z-index: 9999; 
+            font-size: 14px;
             opacity: 0;
+            will-change: transform, opacity;
         }
 
         @keyframes pulseName { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
@@ -468,7 +469,7 @@
                     checkScroll();
                     safeStartCustomFeatures();
                     showFixedPeeker(); 
-                    // Start finding "Courtney" immediately
+                    // Start finding "Courtney" immediately in the loaded text
                     scanAndWrapCourtney();
                 }, 50);
             }, 800);
@@ -489,32 +490,47 @@
 
         // --- 2. HEART FLOW ENGINE FOR "COURTNEY" ---
         function scanAndWrapCourtney() {
+            // Select all potential text containers
             const containers = document.querySelectorAll('.message-text p, h1.title, .cake-instruction');
             containers.forEach(el => {
-                // Simple regex replace doesn't work well with existing HTML tags inside,
-                // so we only target text nodes for safety
                 replaceTextInNode(el, "Courtney");
             });
-            startHeartRain();
+            // Ensure the rain effect loop starts
+            if (!window.heartRainInterval) {
+                startHeartRain();
+            }
         }
 
+        // A robust text replacer using DocumentFragment to avoid breaking HTML
         function replaceTextInNode(element, searchText) {
             if (element.hasChildNodes()) {
-                element.childNodes.forEach(child => replaceTextInNode(child, searchText));
-            } else if (element.nodeType === Text.NODE) {
+                // Convert to array to avoid live list issues during modification
+                Array.from(element.childNodes).forEach(child => replaceTextInNode(child, searchText));
+            } else if (element.nodeType === Node.TEXT_NODE) {
                 const text = element.textContent;
                 const regex = new RegExp(`(${searchText})`, 'gi');
+                
                 if (regex.test(text)) {
-                    const newHtml = text.replace(regex, '<span class="courtney-trigger">$1</span>');
-                    const wrapper = document.createElement('span');
-                    wrapper.innerHTML = newHtml;
-                    element.parentNode.replaceChild(wrapper, element);
+                    const fragment = document.createDocumentFragment();
+                    const parts = text.split(regex);
+                    
+                    parts.forEach(part => {
+                        if (regex.test(part)) {
+                            const span = document.createElement('span');
+                            span.className = 'courtney-trigger';
+                            span.textContent = part;
+                            fragment.appendChild(span);
+                        } else {
+                            fragment.appendChild(document.createTextNode(part));
+                        }
+                    });
+                    element.parentNode.replaceChild(fragment, element);
                 }
             }
         }
 
         function startHeartRain() {
-            setInterval(() => {
+            window.heartRainInterval = setInterval(() => {
                 const triggers = document.querySelectorAll('.courtney-trigger');
                 triggers.forEach(trigger => {
                     spawnHeartFromElement(trigger);
@@ -524,12 +540,13 @@
 
         function spawnHeartFromElement(element) {
             const rect = element.getBoundingClientRect();
-            // Only spawn if visible on screen
-            if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+            
+            // Only spawn if the word is actually visible on screen
+            if (rect.bottom < 0 || rect.top > window.innerHeight || rect.width === 0) return;
 
             const heart = document.createElement('div');
             heart.className = 'heart-particle';
-            heart.innerText = ['❤️', '💕', '💖', '💗'][Math.floor(Math.random() * 4)];
+            heart.innerText = ['❤️', '💕', '💖', '💗', '💓'][Math.floor(Math.random() * 5)];
             
             // Random Start Position within the word
             const startX = rect.left + Math.random() * rect.width;
@@ -538,7 +555,7 @@
             heart.style.left = startX + 'px';
             heart.style.top = startY + 'px';
             
-            // Randomize Movement
+            // Randomize Movement (Messy/Chaos effect)
             const duration = 1500 + Math.random() * 1000;
             const xDist = (Math.random() * 100) - 50; // drift left or right
             const yDist = -50 - Math.random() * 100; // float up
@@ -547,10 +564,11 @@
 
             document.body.appendChild(heart);
 
+            // Animate
             const animation = heart.animate([
-                { transform: `translate(0,0) rotate(0deg) scale(0)`, opacity: 0, zIndex: 9999 },
+                { transform: `translate(0,0) rotate(0deg) scale(0)`, opacity: 0 },
                 { transform: `translate(${xDist * 0.2}px, ${yDist * 0.2}px) rotate(${rotate * 0.2}deg) scale(${scale})`, opacity: 1, offset: 0.2 },
-                { transform: `translate(${xDist}px, ${yDist}px) rotate(${rotate}deg) scale(${scale})`, opacity: 0, zIndex: 9999 }
+                { transform: `translate(${xDist}px, ${yDist}px) rotate(${rotate}deg) scale(${scale})`, opacity: 0 }
             ], {
                 duration: duration,
                 easing: 'ease-out',
@@ -980,8 +998,10 @@
                     twTimer = setTimeout(tick, 70);
                 } else { 
                     clearTimeout(twTimer);
-                    // Once typing finishes, activate the heart effect on this text too
-                    replaceTextInNode(el, "Courtney");
+                    // Once typing finishes, ensure this specific "Courtney" also gets the heart effect
+                    if(window.replaceTextInNode) {
+                        window.replaceTextInNode(el, "Courtney");
+                    }
                 }
             }
             tick();
