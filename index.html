@@ -97,13 +97,33 @@
             background: rgba(20, 20, 35, 0.85); backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1); padding: 30px 20px;
             border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            margin-top: 30px; margin-bottom: 40px; position: relative; overflow: hidden;
+            margin-top: 30px; margin-bottom: 40px; position: relative; overflow: visible; /* Changed to visible for hearts */
         }
 
         .message-text { font-size: 1.1rem; line-height: 1.6; color: #e0e0e0; position: relative; z-index: 2; }
         .message-text p { margin-bottom: 20px; }
         .highlight { color: var(--neon-pink); font-weight: bold; }
         .highlight-blue { color: var(--neon-blue); font-weight: bold; }
+
+        /* SPECIAL NAME ANIMATION CSS */
+        .courtney-trigger {
+            display: inline-block;
+            position: relative;
+            font-weight: bold;
+            color: #ff00cc;
+            text-shadow: 0 0 10px rgba(255, 0, 204, 0.6);
+            animation: pulseName 2s infinite;
+        }
+
+        .heart-particle {
+            position: fixed; /* Fixed so it can float over other elements easily */
+            pointer-events: none;
+            z-index: 9999; /* Very high to mess with other words */
+            font-size: 12px;
+            opacity: 0;
+        }
+
+        @keyframes pulseName { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
         .signature-section { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; clear: both; }
         .signature-text { text-align: right; font-family: 'Dancing Script'; font-size: 2rem; color: var(--neon-pink); line-height: 1.2; }
@@ -190,15 +210,11 @@
             background: rgba(38, 34, 68, 0.4); 
             border-radius: 20px;
             border: 1px solid rgba(255, 102, 178, 0.2);
-            position: relative; overflow: hidden; /* changed from visible to hidden for clean collapse */
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth size transition */
+            position: relative; overflow: hidden;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* When cake is finished, this class makes the box smaller to fit just the text */
-        .cake-section-wrap.compact {
-            padding: 20px;
-            min-height: 0;
-        }
+        .cake-section-wrap.compact { padding: 20px; min-height: 0; }
 
         .cake-instruction {
             font-family: 'Dancing Script', cursive; font-size: 1.8rem; color: #fff;
@@ -212,25 +228,20 @@
             transition: height 0.8s ease, opacity 0.8s ease;
         }
         
-        .cake-container.collapsed {
-            height: 0; opacity: 0; margin: 0; overflow: hidden;
-        }
+        .cake-container.collapsed { height: 0; opacity: 0; margin: 0; overflow: hidden; }
 
         /* Knife Cursor */
         .knife-cursor {
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="%23e0e0e0" stroke="%23ff00cc" stroke-width="1.5"><path d="M4 20 L20 4 L22 6 L6 22 Z" fill="%23fff"/><path d="M6 22 L4 20" stroke="%23999"/><path d="M20 4 L22 6" stroke="%23999"/></svg>') 0 32, auto;
         }
 
-        /* The Cake Canvas - Handles the visual cake and eating logic */
         #cake-canvas {
             position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
             z-index: 2; 
-            /* This specific filter updates the shadow based on the pixel shape */
             filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
             cursor: inherit;
         }
 
-        /* Candles Container - Overlays canvas */
         .candles-container {
             position: absolute;
             top: 30px; 
@@ -249,9 +260,7 @@
             transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
-        .candle.vanish {
-            opacity: 0; transform: translateY(-20px) scale(0.8); pointer-events: none;
-        }
+        .candle.vanish { opacity: 0; transform: translateY(-20px) scale(0.8); pointer-events: none; }
 
         .candle:before {
             content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
@@ -277,7 +286,6 @@
         }
         @keyframes smokeRise { 0% { opacity: 0.8; transform: translateX(-50%) translateY(0) scale(1); } 100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(2); } }
 
-        /* The Flying Slice - Visual Feedback */
         .flying-slice {
             position: absolute;
             width: 40px; height: 40px;
@@ -287,7 +295,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        /* Falling Crumbs */
         .crumb {
             position: absolute; width: 8px; height: 8px; background: var(--cake-base);
             border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -295,11 +302,10 @@
         }
 
         .hidden-message {
-            margin-top: 0; /* Removed top margin to fit nicely */
-            opacity: 0; transform: scale(0.8); transition: all 0.5s;
+            margin-top: 0; opacity: 0; transform: scale(0.8); transition: all 0.5s;
             color: var(--neon-pink); font-family: 'Dancing Script'; font-size: 2rem;
             text-shadow: 0 0 10px rgba(255,0,204,0.5);
-            height: 0; overflow: hidden; /* Initially hidden space */
+            height: 0; overflow: hidden;
         }
         .hidden-message.shown { opacity: 1; transform: scale(1); height: auto; margin-top: 10px; }
 
@@ -462,6 +468,8 @@
                     checkScroll();
                     safeStartCustomFeatures();
                     showFixedPeeker(); 
+                    // Start finding "Courtney" immediately
+                    scanAndWrapCourtney();
                 }, 50);
             }, 800);
         }
@@ -479,71 +487,141 @@
         }
         window.addEventListener('scroll', checkScroll);
 
-        // --- 2. CANVAS CAKE LOGIC (Detailed Decoration & Confetti Logic) ---
+        // --- 2. HEART FLOW ENGINE FOR "COURTNEY" ---
+        function scanAndWrapCourtney() {
+            const containers = document.querySelectorAll('.message-text p, h1.title, .cake-instruction');
+            containers.forEach(el => {
+                // Simple regex replace doesn't work well with existing HTML tags inside,
+                // so we only target text nodes for safety
+                replaceTextInNode(el, "Courtney");
+            });
+            startHeartRain();
+        }
+
+        function replaceTextInNode(element, searchText) {
+            if (element.hasChildNodes()) {
+                element.childNodes.forEach(child => replaceTextInNode(child, searchText));
+            } else if (element.nodeType === Text.NODE) {
+                const text = element.textContent;
+                const regex = new RegExp(`(${searchText})`, 'gi');
+                if (regex.test(text)) {
+                    const newHtml = text.replace(regex, '<span class="courtney-trigger">$1</span>');
+                    const wrapper = document.createElement('span');
+                    wrapper.innerHTML = newHtml;
+                    element.parentNode.replaceChild(wrapper, element);
+                }
+            }
+        }
+
+        function startHeartRain() {
+            setInterval(() => {
+                const triggers = document.querySelectorAll('.courtney-trigger');
+                triggers.forEach(trigger => {
+                    spawnHeartFromElement(trigger);
+                });
+            }, 300); // Spawn frequency
+        }
+
+        function spawnHeartFromElement(element) {
+            const rect = element.getBoundingClientRect();
+            // Only spawn if visible on screen
+            if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+
+            const heart = document.createElement('div');
+            heart.className = 'heart-particle';
+            heart.innerText = ['❤️', '💕', '💖', '💗'][Math.floor(Math.random() * 4)];
+            
+            // Random Start Position within the word
+            const startX = rect.left + Math.random() * rect.width;
+            const startY = rect.top + rect.height / 2;
+            
+            heart.style.left = startX + 'px';
+            heart.style.top = startY + 'px';
+            
+            // Randomize Movement
+            const duration = 1500 + Math.random() * 1000;
+            const xDist = (Math.random() * 100) - 50; // drift left or right
+            const yDist = -50 - Math.random() * 100; // float up
+            const rotate = (Math.random() * 360) - 180;
+            const scale = 0.5 + Math.random() * 1;
+
+            document.body.appendChild(heart);
+
+            const animation = heart.animate([
+                { transform: `translate(0,0) rotate(0deg) scale(0)`, opacity: 0, zIndex: 9999 },
+                { transform: `translate(${xDist * 0.2}px, ${yDist * 0.2}px) rotate(${rotate * 0.2}deg) scale(${scale})`, opacity: 1, offset: 0.2 },
+                { transform: `translate(${xDist}px, ${yDist}px) rotate(${rotate}deg) scale(${scale})`, opacity: 0, zIndex: 9999 }
+            ], {
+                duration: duration,
+                easing: 'ease-out',
+                fill: 'forwards'
+            });
+
+            animation.onfinish = () => heart.remove();
+        }
+
+
+        // --- 3. CAKE LOGIC ---
         let candlesBlown = 0;
         const totalCandles = 3;
         let cuttingEnabled = false;
         let cakeFinished = false;
         let initialPixelCount = 0;
         let canvas, ctx;
-        let isFirstBite = true; // Flag for first bite
+        let isFirstBite = true; 
 
         function initCakeCanvas() {
             canvas = document.getElementById('cake-canvas');
             if(!canvas) return;
             ctx = canvas.getContext('2d');
             
-            // Clear
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // --- DRAW IMPROVED CAKE ---
             const cx = canvas.width / 2;
             const cy = canvas.height;
             const w = 220;
             const h = 130;
             const plateY = cy - 10;
 
-            // 1. Plate (3D Ellipse)
-            ctx.fillStyle = '#f8f8f8'; // White plate
+            // Plate
+            ctx.fillStyle = '#f8f8f8'; 
             ctx.beginPath();
             ctx.ellipse(cx, plateY, 130, 20, 0, 0, Math.PI * 2);
             ctx.fill();
-            // Plate Shadow/Rim
             ctx.fillStyle = '#e0e0e0';
             ctx.beginPath();
             ctx.ellipse(cx, plateY + 5, 130, 20, 0, 0, Math.PI * 2);
-            ctx.globalCompositeOperation = 'destination-over'; // Draw behind
+            ctx.globalCompositeOperation = 'destination-over';
             ctx.fill();
             ctx.globalCompositeOperation = 'source-over';
 
-            // 2. Cake Sponge Base (Layer 1 - Bottom)
+            // Cake Body
             const layerHeight = h / 2;
-            ctx.fillStyle = '#f0e68c'; // Cake base
+            ctx.fillStyle = '#f0e68c'; 
             roundRect(ctx, cx - w/2, cy - h - 15, w, h, 10);
             ctx.fill();
 
-            // 3. Filling Layer (Middle Line)
-            ctx.fillStyle = '#ff3399'; // Jam/Filling
+            // Filling
+            ctx.fillStyle = '#ff3399';
             ctx.fillRect(cx - w/2, cy - h/2 - 15, w, 8);
 
-            // 4. Icing (Top)
+            // Icing
             const icingH = 45;
-            ctx.fillStyle = '#ff85c2'; // Pink Icing
+            ctx.fillStyle = '#ff85c2';
             roundRect(ctx, cx - w/2 - 2, cy - h - 15, w + 4, icingH, {tl:10, tr:10, bl:5, br:5});
             ctx.fill();
 
-            // 5. Drips (Decorated)
+            // Drips
             const drips = [20, 50, 90, 130, 160, 195];
             drips.forEach(dx => {
                 ctx.beginPath();
-                const dropH = 15 + Math.random() * 15;
                 const x = (cx - w/2) + dx;
                 const y = cy - h - 15 + icingH;
                 ctx.arc(x, y, 10, 0, Math.PI, false);
                 ctx.fill();
             });
 
-            // 6. Sprinkles (Randomized)
+            // Sprinkles
             const colors = ['#fff', '#33ccff', '#ffff00', '#cc33ff'];
             for(let i=0; i<30; i++) {
                 ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
@@ -552,11 +630,9 @@
                 ctx.fillRect(sx, sy, 3, 3);
             }
 
-            // Count pixels to know when it's "full"
             initialPixelCount = countVisiblePixels();
         }
 
-        // Helper for rounded rect
         function roundRect(ctx, x, y, w, h, r) {
             if (w < 2 * r) r = w / 2;
             if (h < 2 * r) r = h / 2;
@@ -584,14 +660,11 @@
 
         function blowCandle(flameElement){
             if(!flameElement || flameElement.classList.contains('out')) return;
-            
             flameElement.classList.add('out');
             const smoke = flameElement.nextElementSibling;
             if(smoke) smoke.style.animation = "smokeRise 1s ease-out forwards";
-
             const candleContainer = flameElement.closest('.candle');
             if(candleContainer) setTimeout(() => candleContainer.classList.add('vanish'), 400);
-
             candlesBlown++;
             if(candlesBlown >= totalCandles){
                 setTimeout(()=> {
@@ -613,62 +686,36 @@
         function enableCakeCutting(){
             const cakeContainer = document.getElementById('cake-container');
             if(!canvas || cakeFinished) return;
-            
             cakeContainer.classList.add('knife-cursor');
             cuttingEnabled = true;
-
             canvas.addEventListener('click', function(e){
                 if(!cuttingEnabled || cakeFinished) return;
-                
                 const rect = canvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-
-                // Check if clicking on actual cake pixels (Alpha check)
-                // Prevent "air bites"
                 const pixel = ctx.getImageData(x, y, 1, 1).data;
                 if(pixel[3] === 0) return; 
 
                 takeBite(x, y);
                 spawnCrumbs(e.clientX, e.clientY);
 
-                // Confetti on FIRST bite
                 if(isFirstBite) {
-                    confetti({
-                        particleCount: 40,
-                        spread: 50,
-                        origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
-                        colors: ['#ff00cc','#33ccff']
-                    });
+                    confetti({ particleCount: 40, spread: 50, origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight }, colors: ['#ff00cc','#33ccff'] });
                     isFirstBite = false;
                 }
 
-                // Check percentage
                 const currentPixels = countVisiblePixels();
                 const percentageLeft = currentPixels / initialPixelCount;
-
-                if(percentageLeft < 0.15) {
-                    finishCake();
-                }
+                if(percentageLeft < 0.15) finishCake();
             });
         }
 
         function takeBite(x, y) {
             ctx.globalCompositeOperation = 'destination-out';
-            
             const biteSize = 25;
-            ctx.beginPath();
-            ctx.arc(x, y, biteSize, 0, Math.PI*2);
-            ctx.fill();
-            
-            ctx.beginPath();
-            ctx.arc(x - 10, y - 5, biteSize*0.8, 0, Math.PI*2);
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.arc(x + 10, y + 5, biteSize*0.8, 0, Math.PI*2);
-            ctx.fill();
-            
+            ctx.beginPath(); ctx.arc(x, y, biteSize, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(x - 10, y - 5, biteSize*0.8, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(x + 10, y + 5, biteSize*0.8, 0, Math.PI*2); ctx.fill();
             ctx.globalCompositeOperation = 'source-over';
         }
 
@@ -680,7 +727,6 @@
             slice.style.left = (screenX - rect.left) + 'px';
             slice.style.top = (screenY - rect.top) + 'px';
             cakeContainer.appendChild(slice);
-
             const randomRot = (Math.random() * 60) - 30;
             slice.animate([
                 { transform: `translate(-50%, -50%) scale(0.5) rotate(0deg)`, opacity: 0, offset: 0 },
@@ -707,37 +753,26 @@
             if(cakeFinished) return;
             cakeFinished = true;
             cuttingEnabled = false;
-            
             const instr = document.getElementById('cake-instruction');
             const cakeContainer = document.getElementById('cake-container');
             const sectionWrap = document.getElementById('cake-section');
 
-            // 1. Change Instruction Text
             instr.style.opacity = 0;
             setTimeout(()=> {
                 instr.innerHTML = "looks like my panda is hungry";
                 instr.style.opacity = 1;
             }, 300);
 
-            // 2. BIG Confetti Blast (Last Bite)
-            confetti({
-                particleCount: 150, spread: 120,
-                origin: { x: 0.5, y: 0.5 },
-                colors: ['#ff00cc','#33ccff','#ffffff','#ffdd00']
-            });
-
-            // 3. Fade Out Cake Container logic
+            confetti({ particleCount: 150, spread: 120, origin: { x: 0.5, y: 0.5 }, colors: ['#ff00cc','#33ccff','#ffffff','#ffdd00'] });
             cakeContainer.classList.add('collapsed');
-
-            // 4. Smoothly shrink the wrapper space after fade
             setTimeout(()=> {
                 try{ canvas.remove(); }catch(e){}
-                sectionWrap.classList.add('compact'); // collapses height/padding
+                sectionWrap.classList.add('compact');
                 document.getElementById('birthday-wish').classList.add('shown');
             }, 800);
         }
 
-        // --- 3. Gallery & Logic ---
+        // --- 4. Gallery & Logic ---
         const supportedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         let allImages = [];
 
@@ -943,7 +978,11 @@
                     el.textContent += TYPE_TEXT.charAt(twIndex);
                     twIndex++;
                     twTimer = setTimeout(tick, 70);
-                } else { clearTimeout(twTimer); }
+                } else { 
+                    clearTimeout(twTimer);
+                    // Once typing finishes, activate the heart effect on this text too
+                    replaceTextInNode(el, "Courtney");
+                }
             }
             tick();
         }
