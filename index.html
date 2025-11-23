@@ -21,8 +21,6 @@
             --cake-sponge: #ffdd99;
             --cake-filling: #ff99cc;
             --plate-color: #f0f0f0;
-            /* This must match the container background to simulate a 'hole' in the cake */
-            --cake-bg-match: #262244; 
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -188,7 +186,7 @@
         /* --- INTERACTIVE CAKE SECTION --- */
         .cake-section-wrap {
             margin: 50px 0; padding: 40px 20px; text-align: center;
-            background: rgba(38, 34, 68, 0.4); /* Darker for bite mask contrast */
+            background: rgba(38, 34, 68, 0.4); 
             border-radius: 20px;
             border: 1px solid rgba(255, 102, 178, 0.2);
             position: relative; overflow: visible;
@@ -201,45 +199,33 @@
         }
 
         .cake-container {
-            position: relative; width: 250px; height: 200px; margin: 0 auto;
-            transition: transform 0.3s; user-select: none;
-            cursor: default; 
+            position: relative; width: 280px; height: 200px; margin: 0 auto;
+            user-select: none; cursor: default; 
         }
 
-        /* Specific Knife Cursor */
+        /* Knife Cursor */
         .knife-cursor {
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="%23e0e0e0" stroke="%23ff00cc" stroke-width="1.5"><path d="M4 20 L20 4 L22 6 L6 22 Z" fill="%23fff"/><path d="M6 22 L4 20" stroke="%23999"/><path d="M20 4 L22 6" stroke="%23999"/></svg>') 0 32, auto;
         }
 
-        /* The Cake Body */
-        .cake-body {
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 220px; height: 130px; background: var(--cake-base);
-            border-radius: 15px 15px 0 0;
-            box-shadow: inset -15px 0 25px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.5);
-            z-index: 2; overflow: hidden;
-            transition: opacity .6s ease;
+        /* The Cake Canvas - Handles the visual cake and eating logic */
+        #cake-canvas {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            z-index: 2; 
+            /* This specific filter updates the shadow based on the pixel shape */
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            cursor: inherit;
         }
-        
-        /* Icing */
-        .cake-icing {
-            position: absolute; top: 0; left: 0; width: 100%; height: 50px;
-            background: var(--cake-icing); border-radius: 15px 15px 20px 20px; z-index: 3;
-        }
-        .drip { position: absolute; top: 40px; background: var(--cake-icing); width: 18px; border-radius: 0 0 10px 10px; z-index: 3; }
-        .drip:nth-child(1) { left: 20px; height: 35px; } .drip:nth-child(2) { left: 60px; height: 20px; }
-        .drip:nth-child(3) { left: 90px; height: 40px; } .drip:nth-child(4) { left: 130px; height: 25px; }
-        .drip:nth-child(5) { left: 170px; height: 35px; }
 
-        /* Candles - Container sits ON TOP of cake body but separate */
+        /* Candles Container - Overlays canvas */
         .candles-container {
             position: absolute;
-            top: 20px; 
+            top: 30px; 
             left: 50%; transform: translateX(-50%);
             width: 140px; height: 50px; z-index: 10;
             display: flex; justify-content: space-around;
             align-items: flex-end;
-            pointer-events: none; /* Let clicks pass through container, capture on flame */
+            pointer-events: none;
         }
 
         .candle {
@@ -247,14 +233,11 @@
             border-radius: 4px; position: relative;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             pointer-events: auto;
-            transition: opacity 1s ease, transform 1s ease;
+            transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
-        /* Class to make candle disappear */
         .candle.vanish {
-            opacity: 0;
-            transform: translateY(-20px) scale(0.8);
-            pointer-events: none;
+            opacity: 0; transform: translateY(-20px) scale(0.8); pointer-events: none;
         }
 
         .candle:before {
@@ -283,27 +266,13 @@
 
         /* Plate */
         .plate {
-            position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%);
             width: 280px; height: 20px; background: var(--plate-color); border-radius: 50%;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5); z-index: 1;
-            transition: opacity .5s;
+            transition: opacity 0.8s;
         }
 
-        /* "Real" Cutting Elements */
-        
-        /* The Bite Mark - This simulates a hole being scooped out */
-        .bite-mark {
-            position: absolute;
-            width: 55px; height: 55px;
-            background: var(--cake-bg-match); /* Matches container bg to look transparent */
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5);
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        /* The Flying Slice - The piece that flies away */
+        /* The Flying Slice - Visual Feedback */
         .flying-slice {
             position: absolute;
             width: 40px; height: 40px;
@@ -388,12 +357,7 @@
                         <div class="candle"><div class="flame" onclick="blowCandle(this)"></div><div class="smoke"></div></div>
                     </div>
                     
-                    <div class="cake-body" id="cake-body">
-                        <div class="cake-icing">
-                            <div class="drip"></div><div class="drip"></div><div class="drip"></div>
-                            <div class="drip"></div><div class="drip"></div><div class="drip"></div>
-                        </div>
-                    </div>
+                    <canvas id="cake-canvas" width="280" height="160"></canvas>
                     
                     <div class="plate" id="plate"></div>
                 </div>
@@ -487,6 +451,7 @@
                 musicBar.style.display = 'flex';
                 setTimeout(() => {
                     main.style.opacity = '1';
+                    initCakeCanvas(); // Draw the cake
                     launchConfetti();
                     loadGalleryImages();
                     checkScroll();
@@ -509,49 +474,113 @@
         }
         window.addEventListener('scroll', checkScroll);
 
-        // --- 2. PROFESSIONAL CAKE INTERACTION ---
+        // --- 2. CANVAS CAKE LOGIC (Robust Eating) ---
         let candlesBlown = 0;
         const totalCandles = 3;
         let cuttingEnabled = false;
         let cakeFinished = false;
-        let cutsMade = 0;
-        const requiredCuts = 6; // Takes 6 clicks to finish
-        let cakeBodyClickAttached = false;
+        let initialPixelCount = 0;
+        let canvas, ctx;
+
+        function initCakeCanvas() {
+            canvas = document.getElementById('cake-canvas');
+            if(!canvas) return;
+            ctx = canvas.getContext('2d');
+            
+            // Clear
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // --- DRAW CAKE ---
+            const cx = canvas.width / 2;
+            const cy = canvas.height;
+            const w = 220;
+            const h = 130;
+            const icingH = 50;
+
+            // 1. Sponge Base (Yellow)
+            ctx.fillStyle = '#f0e68c'; // var(--cake-base)
+            // Draw rounded rect manually or via path
+            roundRect(ctx, cx - w/2, cy - h - 10, w, h, 15);
+            ctx.fill();
+
+            // 2. Shadow inset (fake 3D depth)
+            // We draw a gradient on the bottom/right
+            const grad = ctx.createLinearGradient(cx, cy - h, cx, cy);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.15)');
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // 3. Icing (Pink)
+            ctx.fillStyle = '#ff66b2'; // var(--cake-icing)
+            // Top rect
+            roundRect(ctx, cx - w/2 - 2, cy - h - 10, w + 4, icingH, {tl:15, tr:15, bl:5, br:5});
+            ctx.fill();
+
+            // 4. Drips
+            const drips = [20, 60, 100, 140, 180];
+            drips.forEach(dx => {
+                ctx.beginPath();
+                // Randomize drip length slightly
+                const dropH = 15 + Math.random() * 10;
+                const x = (cx - w/2) + dx;
+                const y = cy - h - 10 + icingH;
+                ctx.arc(x, y, 12, 0, Math.PI, false);
+                ctx.fill();
+            });
+
+            // Count pixels to know when it's "full"
+            // We only count alpha > 0
+            initialPixelCount = countVisiblePixels();
+        }
+
+        // Helper for rounded rect
+        function roundRect(ctx, x, y, w, h, r) {
+            if (w < 2 * r) r = w / 2;
+            if (h < 2 * r) r = h / 2;
+            ctx.beginPath();
+            ctx.moveTo(x+r, y);
+            ctx.arcTo(x+w, y,   x+w, y+h, r);
+            ctx.arcTo(x+w, y+h, x,   y+h, r);
+            ctx.arcTo(x,   y+h, x,   y,   r);
+            ctx.arcTo(x,   y,   x+w, y,   r);
+            ctx.closePath();
+        }
+
+        function countVisiblePixels() {
+            if(!ctx) return 0;
+            try {
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+                let count = 0;
+                for(let i = 3; i < data.length; i += 4) {
+                    if(data[i] > 0) count++;
+                }
+                return count;
+            } catch(e) { return 10000; } // fallback
+        }
 
         function blowCandle(flameElement){
             if(!flameElement || flameElement.classList.contains('out')) return;
             
-            // 1. Extinguish flame
             flameElement.classList.add('out');
-            
-            // 2. Smoke effect
             const smoke = flameElement.nextElementSibling;
-            if(smoke) {
-                smoke.style.animation = "smokeRise 1s ease-out forwards";
-            }
+            if(smoke) smoke.style.animation = "smokeRise 1s ease-out forwards";
 
-            // 3. FADE OUT THE CANDLE ENTIRELY
             const candleContainer = flameElement.closest('.candle');
-            if(candleContainer) {
-                setTimeout(() => {
-                    candleContainer.classList.add('vanish');
-                }, 400); // wait slightly after blow
-            }
+            if(candleContainer) setTimeout(() => candleContainer.classList.add('vanish'), 400);
 
             candlesBlown++;
             if(candlesBlown >= totalCandles){
                 setTimeout(()=> {
                     const instr = document.getElementById('cake-instruction');
                     instr.style.opacity = 0;
-                    
-                    // Remove the candle container from DOM after they fade to clear space
                     setTimeout(() => {
                         const cc = document.getElementById('candles-container');
                         if(cc) cc.style.display = 'none';
                     }, 1200);
-
                     setTimeout(()=> {
-                        instr.innerHTML = "Now <span style='color:var(--neon-pink);font-weight:700'>Cut the Cake</span> — Scoop it up!";
+                        instr.innerHTML = "Now <span style='color:var(--neon-pink);font-weight:700'>Eat the Cake</span> — Click to take bites!";
                         instr.style.opacity = 1;
                         enableCakeCutting();
                     }, 300);
@@ -561,98 +590,86 @@
 
         function enableCakeCutting(){
             const cakeContainer = document.getElementById('cake-container');
-            const cakeBody = document.getElementById('cake-body');
-            if(!cakeBody || cakeFinished) return;
+            if(!canvas || cakeFinished) return;
             
             cakeContainer.classList.add('knife-cursor');
             cuttingEnabled = true;
 
-            if(cakeBodyClickAttached) return;
-            cakeBodyClickAttached = true;
-
-            cakeBody.addEventListener('click', function(e){
+            // Handle clicks on canvas
+            canvas.addEventListener('click', function(e){
                 if(!cuttingEnabled || cakeFinished) return;
-
-                const rect = cakeBody.getBoundingClientRect();
+                
+                const rect = canvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                
-                performRealCut(x, y);
 
-                // First cut confetti
-                if(cutsMade === 0){
-                    confetti({
-                        particleCount: 30, spread: 60,
-                        origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
-                        colors: ['#ff00cc','#33ccff']
-                    });
-                }
+                takeBite(x, y);
+                spawnCrumbs(e.clientX, e.clientY);
 
-                cutsMade++;
+                // Check percentage
+                const currentPixels = countVisiblePixels();
+                const percentageLeft = currentPixels / initialPixelCount;
 
-                // Finish logic
-                if(cutsMade >= requiredCuts){
+                // If < 15% left, finish it
+                if(percentageLeft < 0.15) {
                     finishCake();
                 }
             });
         }
 
-        function performRealCut(x, y){
-            const cakeBody = document.getElementById('cake-body');
+        function takeBite(x, y) {
+            // "Erase" part of the canvas using composite operation
+            ctx.globalCompositeOperation = 'destination-out';
+            
+            // Draw a jagged bite (cluster of circles)
+            const biteSize = 25;
+            ctx.beginPath();
+            ctx.arc(x, y, biteSize, 0, Math.PI*2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x - 10, y - 5, biteSize*0.8, 0, Math.PI*2);
+            ctx.fill();
 
-            // 1. Create the "Bite Mark" (Masking the cake)
-            // This places a circle color-matched to background on top of the cake
-            const bite = document.createElement('div');
-            bite.className = 'bite-mark';
-            bite.style.left = x + 'px';
-            bite.style.top = y + 'px';
-            // Randomize bite size slightly
-            const size = 50 + Math.random() * 15;
-            bite.style.width = size + 'px';
-            bite.style.height = size + 'px';
-            cakeBody.appendChild(bite);
+            ctx.beginPath();
+            ctx.arc(x + 10, y + 5, biteSize*0.8, 0, Math.PI*2);
+            ctx.fill();
+            
+            // Reset
+            ctx.globalCompositeOperation = 'source-over';
+        }
 
-            // 2. Create the "Flying Slice" (Visual Feedback)
-            // A piece that looks like it was lifted up
+        function spawnCrumbs(screenX, screenY) {
+            const cakeContainer = document.getElementById('cake-container');
+            // Visual slice flying up
             const slice = document.createElement('div');
             slice.className = 'flying-slice';
-            slice.style.left = x + 'px';
-            slice.style.top = y + 'px';
-            slice.style.transform = `translate(-50%, -50%) scale(1)`;
-            cakeBody.appendChild(slice);
+            // Position relative to container not screen, need to adjust
+            const rect = cakeContainer.getBoundingClientRect();
+            slice.style.left = (screenX - rect.left) + 'px';
+            slice.style.top = (screenY - rect.top) + 'px';
+            cakeContainer.appendChild(slice);
 
-            // Animate slice flying towards screen and up
+            // Animate slice
             const randomRot = (Math.random() * 60) - 30;
-            const animTime = 800;
-            
-            // We use Web Animations API for smoother physics
             slice.animate([
                 { transform: `translate(-50%, -50%) scale(0.5) rotate(0deg)`, opacity: 0, offset: 0 },
                 { transform: `translate(-50%, -50%) scale(1) rotate(${randomRot*0.3}deg)`, opacity: 1, offset: 0.1 },
                 { transform: `translate(-50%, -150px) scale(1.2) rotate(${randomRot}deg)`, opacity: 0, offset: 1 }
-            ], {
-                duration: animTime, easing: 'ease-out', fill: 'forwards'
-            });
+            ], { duration: 800, easing: 'ease-out', fill: 'forwards' });
+            setTimeout(() => slice.remove(), 800);
 
-            setTimeout(() => slice.remove(), animTime);
-
-            // 3. Falling Crumbs
-            for(let i=0; i<5; i++){
+            // Crumbs
+            for(let i=0; i<4; i++){
                 const crumb = document.createElement('div');
                 crumb.className = 'crumb';
-                const cx = x + (Math.random()*40 - 20);
-                const cy = y + (Math.random()*20 - 10);
-                crumb.style.left = cx + 'px';
-                crumb.style.top = cy + 'px';
-                cakeBody.appendChild(crumb);
-                
-                // Animate crumb falling
+                crumb.style.left = (screenX - rect.left) + (Math.random()*40 - 20) + 'px';
+                crumb.style.top = (screenY - rect.top) + (Math.random()*20 - 10) + 'px';
+                cakeContainer.appendChild(crumb);
                 crumb.animate([
                     { transform: 'translateY(0)', opacity: 1 },
                     { transform: `translate(${Math.random()*40-20}px, ${50+Math.random()*50}px)`, opacity: 0 }
-                ], {
-                    duration: 600 + Math.random()*400, easing: 'cubic-bezier(0.5, 0.05, 1, 0.5)', fill: 'forwards'
-                });
+                ], { duration: 600 + Math.random()*400, fill: 'forwards' });
                 setTimeout(() => crumb.remove(), 1000);
             }
         }
@@ -663,7 +680,6 @@
             cuttingEnabled = false;
             
             const instr = document.getElementById('cake-instruction');
-            const cakeBody = document.getElementById('cake-body');
             const plate = document.getElementById('plate');
 
             instr.style.opacity = 0;
@@ -672,25 +688,21 @@
                 instr.style.opacity = 1;
             }, 300);
 
-            // Big finish confetti
             confetti({
-                particleCount: 80, spread: 100,
+                particleCount: 100, spread: 100,
                 origin: { x: 0.5, y: 0.5 },
                 colors: ['#ff00cc','#33ccff','#ffffff']
             });
 
-            // Fade everything out
-            cakeBody.style.transition = 'transform 0.8s, opacity 0.8s';
-            cakeBody.style.transform = 'translateX(-50%) scale(0.9)';
-            cakeBody.style.opacity = 0;
-            
-            plate.style.transition = 'opacity 0.8s';
+            // Fade out canvas and plate
+            canvas.style.transition = 'opacity 1s ease';
+            canvas.style.opacity = 0;
             plate.style.opacity = 0;
 
             setTimeout(()=> {
-                try{ cakeBody.remove(); plate.remove(); }catch(e){}
+                try{ canvas.remove(); plate.remove(); }catch(e){}
                 document.getElementById('birthday-wish').classList.add('shown');
-            }, 900);
+            }, 1000);
         }
 
         // --- 3. Gallery & Logic ---
