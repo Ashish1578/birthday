@@ -17,10 +17,11 @@
             
             /* Cake Colors */
             --cake-base: #f0e68c;
-            --cake-icing: #ff66b2;
-            --cake-sponge: #ffdd99;
-            --cake-filling: #ff99cc;
-            --plate-color: #f0f0f0;
+            --cake-layer-dark: #e0d67c;
+            --cake-icing: #ff85c2;
+            --cake-filling: #ff3399;
+            --plate-color: #f8f8f8;
+            --plate-shadow: #ccc;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -189,7 +190,14 @@
             background: rgba(38, 34, 68, 0.4); 
             border-radius: 20px;
             border: 1px solid rgba(255, 102, 178, 0.2);
-            position: relative; overflow: visible;
+            position: relative; overflow: hidden; /* changed from visible to hidden for clean collapse */
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth size transition */
+        }
+
+        /* When cake is finished, this class makes the box smaller to fit just the text */
+        .cake-section-wrap.compact {
+            padding: 20px;
+            min-height: 0;
         }
 
         .cake-instruction {
@@ -201,6 +209,11 @@
         .cake-container {
             position: relative; width: 280px; height: 200px; margin: 0 auto;
             user-select: none; cursor: default; 
+            transition: height 0.8s ease, opacity 0.8s ease;
+        }
+        
+        .cake-container.collapsed {
+            height: 0; opacity: 0; margin: 0; overflow: hidden;
         }
 
         /* Knife Cursor */
@@ -264,19 +277,11 @@
         }
         @keyframes smokeRise { 0% { opacity: 0.8; transform: translateX(-50%) translateY(0) scale(1); } 100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(2); } }
 
-        /* Plate */
-        .plate {
-            position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%);
-            width: 280px; height: 20px; background: var(--plate-color); border-radius: 50%;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5); z-index: 1;
-            transition: opacity 0.8s;
-        }
-
         /* The Flying Slice - Visual Feedback */
         .flying-slice {
             position: absolute;
             width: 40px; height: 40px;
-            background: radial-gradient(circle, var(--cake-filling) 30%, var(--cake-sponge) 31%);
+            background: radial-gradient(circle, var(--cake-filling) 30%, var(--cake-base) 31%);
             border-radius: 50%;
             z-index: 20; pointer-events: none;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
@@ -284,17 +289,19 @@
 
         /* Falling Crumbs */
         .crumb {
-            position: absolute; width: 8px; height: 8px; background: var(--cake-sponge);
+            position: absolute; width: 8px; height: 8px; background: var(--cake-base);
             border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             opacity: 1; pointer-events: none; z-index: 20;
         }
 
         .hidden-message {
-            margin-top: 20px; opacity: 0; transform: scale(0.8); transition: all 0.5s;
+            margin-top: 0; /* Removed top margin to fit nicely */
+            opacity: 0; transform: scale(0.8); transition: all 0.5s;
             color: var(--neon-pink); font-family: 'Dancing Script'; font-size: 2rem;
             text-shadow: 0 0 10px rgba(255,0,204,0.5);
+            height: 0; overflow: hidden; /* Initially hidden space */
         }
-        .hidden-message.shown { opacity: 1; transform: scale(1); }
+        .hidden-message.shown { opacity: 1; transform: scale(1); height: auto; margin-top: 10px; }
 
         @keyframes flicker { 0% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) scale(1.1) skewX(2deg); opacity: 0.9; } }
         @keyframes bounce { 0% { height: 2px; } 100% { height: 15px; } }
@@ -358,8 +365,6 @@
                     </div>
                     
                     <canvas id="cake-canvas" width="280" height="160"></canvas>
-                    
-                    <div class="plate" id="plate"></div>
                 </div>
                 
                 <div class="hidden-message" id="birthday-wish">Happy Birthday My Love! ❤️<br>You're the sweetest thing here!</div>
@@ -474,13 +479,14 @@
         }
         window.addEventListener('scroll', checkScroll);
 
-        // --- 2. CANVAS CAKE LOGIC (Robust Eating) ---
+        // --- 2. CANVAS CAKE LOGIC (Detailed Decoration & Confetti Logic) ---
         let candlesBlown = 0;
         const totalCandles = 3;
         let cuttingEnabled = false;
         let cakeFinished = false;
         let initialPixelCount = 0;
         let canvas, ctx;
+        let isFirstBite = true; // Flag for first bite
 
         function initCakeCanvas() {
             canvas = document.getElementById('cake-canvas');
@@ -490,47 +496,63 @@
             // Clear
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // --- DRAW CAKE ---
+            // --- DRAW IMPROVED CAKE ---
             const cx = canvas.width / 2;
             const cy = canvas.height;
             const w = 220;
             const h = 130;
-            const icingH = 50;
+            const plateY = cy - 10;
 
-            // 1. Sponge Base (Yellow)
-            ctx.fillStyle = '#f0e68c'; // var(--cake-base)
-            // Draw rounded rect manually or via path
-            roundRect(ctx, cx - w/2, cy - h - 10, w, h, 15);
+            // 1. Plate (3D Ellipse)
+            ctx.fillStyle = '#f8f8f8'; // White plate
+            ctx.beginPath();
+            ctx.ellipse(cx, plateY, 130, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Plate Shadow/Rim
+            ctx.fillStyle = '#e0e0e0';
+            ctx.beginPath();
+            ctx.ellipse(cx, plateY + 5, 130, 20, 0, 0, Math.PI * 2);
+            ctx.globalCompositeOperation = 'destination-over'; // Draw behind
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            // 2. Cake Sponge Base (Layer 1 - Bottom)
+            const layerHeight = h / 2;
+            ctx.fillStyle = '#f0e68c'; // Cake base
+            roundRect(ctx, cx - w/2, cy - h - 15, w, h, 10);
             ctx.fill();
 
-            // 2. Shadow inset (fake 3D depth)
-            // We draw a gradient on the bottom/right
-            const grad = ctx.createLinearGradient(cx, cy - h, cx, cy);
-            grad.addColorStop(0, 'rgba(0,0,0,0)');
-            grad.addColorStop(1, 'rgba(0,0,0,0.15)');
-            ctx.fillStyle = grad;
+            // 3. Filling Layer (Middle Line)
+            ctx.fillStyle = '#ff3399'; // Jam/Filling
+            ctx.fillRect(cx - w/2, cy - h/2 - 15, w, 8);
+
+            // 4. Icing (Top)
+            const icingH = 45;
+            ctx.fillStyle = '#ff85c2'; // Pink Icing
+            roundRect(ctx, cx - w/2 - 2, cy - h - 15, w + 4, icingH, {tl:10, tr:10, bl:5, br:5});
             ctx.fill();
 
-            // 3. Icing (Pink)
-            ctx.fillStyle = '#ff66b2'; // var(--cake-icing)
-            // Top rect
-            roundRect(ctx, cx - w/2 - 2, cy - h - 10, w + 4, icingH, {tl:15, tr:15, bl:5, br:5});
-            ctx.fill();
-
-            // 4. Drips
-            const drips = [20, 60, 100, 140, 180];
+            // 5. Drips (Decorated)
+            const drips = [20, 50, 90, 130, 160, 195];
             drips.forEach(dx => {
                 ctx.beginPath();
-                // Randomize drip length slightly
-                const dropH = 15 + Math.random() * 10;
+                const dropH = 15 + Math.random() * 15;
                 const x = (cx - w/2) + dx;
-                const y = cy - h - 10 + icingH;
-                ctx.arc(x, y, 12, 0, Math.PI, false);
+                const y = cy - h - 15 + icingH;
+                ctx.arc(x, y, 10, 0, Math.PI, false);
                 ctx.fill();
             });
 
+            // 6. Sprinkles (Randomized)
+            const colors = ['#fff', '#33ccff', '#ffff00', '#cc33ff'];
+            for(let i=0; i<30; i++) {
+                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+                const sx = (cx - w/2) + 10 + Math.random() * (w - 20);
+                const sy = (cy - h - 15) + Math.random() * (icingH - 10);
+                ctx.fillRect(sx, sy, 3, 3);
+            }
+
             // Count pixels to know when it's "full"
-            // We only count alpha > 0
             initialPixelCount = countVisiblePixels();
         }
 
@@ -557,7 +579,7 @@
                     if(data[i] > 0) count++;
                 }
                 return count;
-            } catch(e) { return 10000; } // fallback
+            } catch(e) { return 10000; } 
         }
 
         function blowCandle(flameElement){
@@ -595,7 +617,6 @@
             cakeContainer.classList.add('knife-cursor');
             cuttingEnabled = true;
 
-            // Handle clicks on canvas
             canvas.addEventListener('click', function(e){
                 if(!cuttingEnabled || cakeFinished) return;
                 
@@ -603,14 +624,29 @@
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
 
+                // Check if clicking on actual cake pixels (Alpha check)
+                // Prevent "air bites"
+                const pixel = ctx.getImageData(x, y, 1, 1).data;
+                if(pixel[3] === 0) return; 
+
                 takeBite(x, y);
                 spawnCrumbs(e.clientX, e.clientY);
+
+                // Confetti on FIRST bite
+                if(isFirstBite) {
+                    confetti({
+                        particleCount: 40,
+                        spread: 50,
+                        origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
+                        colors: ['#ff00cc','#33ccff']
+                    });
+                    isFirstBite = false;
+                }
 
                 // Check percentage
                 const currentPixels = countVisiblePixels();
                 const percentageLeft = currentPixels / initialPixelCount;
 
-                // If < 15% left, finish it
                 if(percentageLeft < 0.15) {
                     finishCake();
                 }
@@ -618,10 +654,8 @@
         }
 
         function takeBite(x, y) {
-            // "Erase" part of the canvas using composite operation
             ctx.globalCompositeOperation = 'destination-out';
             
-            // Draw a jagged bite (cluster of circles)
             const biteSize = 25;
             ctx.beginPath();
             ctx.arc(x, y, biteSize, 0, Math.PI*2);
@@ -635,22 +669,18 @@
             ctx.arc(x + 10, y + 5, biteSize*0.8, 0, Math.PI*2);
             ctx.fill();
             
-            // Reset
             ctx.globalCompositeOperation = 'source-over';
         }
 
         function spawnCrumbs(screenX, screenY) {
             const cakeContainer = document.getElementById('cake-container');
-            // Visual slice flying up
             const slice = document.createElement('div');
             slice.className = 'flying-slice';
-            // Position relative to container not screen, need to adjust
             const rect = cakeContainer.getBoundingClientRect();
             slice.style.left = (screenX - rect.left) + 'px';
             slice.style.top = (screenY - rect.top) + 'px';
             cakeContainer.appendChild(slice);
 
-            // Animate slice
             const randomRot = (Math.random() * 60) - 30;
             slice.animate([
                 { transform: `translate(-50%, -50%) scale(0.5) rotate(0deg)`, opacity: 0, offset: 0 },
@@ -659,7 +689,6 @@
             ], { duration: 800, easing: 'ease-out', fill: 'forwards' });
             setTimeout(() => slice.remove(), 800);
 
-            // Crumbs
             for(let i=0; i<4; i++){
                 const crumb = document.createElement('div');
                 crumb.className = 'crumb';
@@ -680,29 +709,32 @@
             cuttingEnabled = false;
             
             const instr = document.getElementById('cake-instruction');
-            const plate = document.getElementById('plate');
+            const cakeContainer = document.getElementById('cake-container');
+            const sectionWrap = document.getElementById('cake-section');
 
+            // 1. Change Instruction Text
             instr.style.opacity = 0;
             setTimeout(()=> {
-                instr.innerHTML = "All gone! Sweet Tooth satisfied ❤️";
+                instr.innerHTML = "looks like my panda is hungry";
                 instr.style.opacity = 1;
             }, 300);
 
+            // 2. BIG Confetti Blast (Last Bite)
             confetti({
-                particleCount: 100, spread: 100,
+                particleCount: 150, spread: 120,
                 origin: { x: 0.5, y: 0.5 },
-                colors: ['#ff00cc','#33ccff','#ffffff']
+                colors: ['#ff00cc','#33ccff','#ffffff','#ffdd00']
             });
 
-            // Fade out canvas and plate
-            canvas.style.transition = 'opacity 1s ease';
-            canvas.style.opacity = 0;
-            plate.style.opacity = 0;
+            // 3. Fade Out Cake Container logic
+            cakeContainer.classList.add('collapsed');
 
+            // 4. Smoothly shrink the wrapper space after fade
             setTimeout(()=> {
-                try{ canvas.remove(); plate.remove(); }catch(e){}
+                try{ canvas.remove(); }catch(e){}
+                sectionWrap.classList.add('compact'); // collapses height/padding
                 document.getElementById('birthday-wish').classList.add('shown');
-            }, 1000);
+            }, 800);
         }
 
         // --- 3. Gallery & Logic ---
