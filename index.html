@@ -594,61 +594,75 @@
             ctx = canvas.getContext('2d');
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+            
             const cx = canvas.width / 2;
             const cy = canvas.height;
             const w = 220;
             const h = 130;
             const plateY = cy - 10;
-
-            // Plate
-            ctx.fillStyle = '#f8f8f8'; 
+            
+            // Plate base
+            const plateGradient = ctx.createRadialGradient(cx, plateY, 10, cx, plateY, 140);
+            plateGradient.addColorStop(0, "#ffffff");
+            plateGradient.addColorStop(1, "#d1d1d1");
+            ctx.fillStyle = plateGradient;
             ctx.beginPath();
             ctx.ellipse(cx, plateY, 130, 20, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#e0e0e0';
+            
+            // Plate shadow under cake
+            ctx.fillStyle = "rgba(0,0,0,0.35)";
             ctx.beginPath();
-            ctx.ellipse(cx, plateY + 5, 130, 20, 0, 0, Math.PI * 2);
-            ctx.globalCompositeOperation = 'destination-over';
+            ctx.ellipse(cx, plateY + 4, 100, 12, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.globalCompositeOperation = 'source-over';
-
-            // Cake Body
-            const layerHeight = h / 2;
-            ctx.fillStyle = '#f0e68c'; 
-            roundRect(ctx, cx - w/2, cy - h - 15, w, h, 10);
+            
+            // Cake body with gradient
+            const cakeGrad = ctx.createLinearGradient(cx, cy - h - 15, cx, cy);
+            cakeGrad.addColorStop(0, "#f7e7a5");
+            cakeGrad.addColorStop(1, "#e8d477");
+            ctx.fillStyle = cakeGrad;
+            roundRect(ctx, cx - w/2, cy - h - 15, w, h, 18);
             ctx.fill();
-
-            // Filling
-            ctx.fillStyle = '#ff3399';
-            ctx.fillRect(cx - w/2, cy - h/2 - 15, w, 8);
-
-            // Icing
-            const icingH = 45;
-            ctx.fillStyle = '#ff85c2';
-            roundRect(ctx, cx - w/2 - 2, cy - h - 15, w + 4, icingH, {tl:10, tr:10, bl:5, br:5});
+            
+            // Inner filling line
+            ctx.fillStyle = "#ff3399";
+            ctx.fillRect(cx - w/2, cy - h/2 - 15, w, 10);
+            
+            // Icing top
+            const icingGrad = ctx.createLinearGradient(cx, cy - h - 15, cx, cy - h + 25);
+            icingGrad.addColorStop(0, "#ffb3dd");
+            icingGrad.addColorStop(1, "#ff85c2");
+            ctx.fillStyle = icingGrad;
+            roundRect(ctx, cx - w/2 - 4, cy - h - 15, w + 8, 45, 16);
             ctx.fill();
-
-            // Drips
-            const drips = [20, 50, 90, 130, 160, 195];
-            drips.forEach(dx => {
+            
+            // Realistic drips
+            const dripPositions = [25, 60, 95, 130, 165, 200];
+            ctx.fillStyle = "#ff85c2";
+            dripPositions.forEach(xPos => {
                 ctx.beginPath();
-                const x = (cx - w/2) + dx;
-                const y = cy - h - 15 + icingH;
-                ctx.arc(x, y, 10, 0, Math.PI, false);
+                const x = (cx - w/2) + xPos;
+                const y = cy - h + 25;
+                ctx.bezierCurveTo(x, y, x - 6, y + 28, x + 3, y + 36);
+                ctx.bezierCurveTo(x + 6, y + 28, x + 3, y + 10, x + 2, y);
                 ctx.fill();
             });
-
+            
             // Sprinkles
-            const colors = ['#fff', '#33ccff', '#ffff00', '#cc33ff'];
-            for(let i=0; i<30; i++) {
-                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
-                const sx = (cx - w/2) + 10 + Math.random() * (w - 20);
-                const sy = (cy - h - 15) + Math.random() * (icingH - 10);
-                ctx.fillRect(sx, sy, 3, 3);
+            const sprinkleColors = ["#ffffff", "#33ccff", "#ffff00", "#cc33ff"];
+            for (let i = 0; i < 40; i++) {
+                ctx.fillStyle = sprinkleColors[Math.floor(Math.random() * sprinkleColors.length)];
+                const sx = (cx - w/2) + 15 + Math.random() * (w - 30);
+                const sy = (cy - h - 10) + Math.random() * 31;
+                ctx.save();
+                ctx.translate(sx, sy);
+                ctx.rotate(Math.random() * Math.PI);
+                ctx.fillRect(0, 0, 3, 6);
+                ctx.restore();
             }
-
+            
             initialPixelCount = countVisiblePixels();
+
         }
 
         function roundRect(ctx, x, y, w, h, r) {
